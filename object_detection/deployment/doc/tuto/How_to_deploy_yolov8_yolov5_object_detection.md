@@ -22,15 +22,15 @@ The STMicroelectronics Ultralytics fork: [https://github.com/stm32-hotspot/ultra
 These models are ready to be deployed and you can go directly to the deployment section.
 The other sections below explain how to start from a model trained with Ultralytics scripts and not quantized.
 
-If you just want to deploy pre-trained and quantized segmentation, you can get them from the STMicroelectronics Ultralytics.
+If you just want to deploy pre-trained and quantized models, you can get them from the STMicroelectronics Ultralytics.
 If you want to train, you can use directly Ultralytics repository at [https://github.com/ultralytics/ultralytics](https://github.com/ultralytics/ultralytics).
 
 ## Pre-requisite
-  
+
 By default, Ultralytics requirements do not install the packages required to export to onnx or tensorflow lite.
 When exporting for the first time, it will either use pre-installed packages or do an auto update installing the latest versions which then causes compatibility issues.
 To ensure compatibility, you need to install (or downgrade) the versions of tensorflow, onnx and onnxruntime following below requirements:
-Ultralytics version has to be <= 8.3.88
+Validated on Ultralytics version 8.3.157
 Use a python 3.9 environment (for the tflite_support package dependency)
 Tensorflow version between 2.8.3 and 2.15.1
 ONNX version between 1.12.0 and 1.15.0
@@ -48,35 +48,6 @@ Other packages can be installed through the auto update procedure.
 Train the `Yolov8n` model as usual using Ultralytics scripts or start from the pre-trained Yolov8n Pytorch model.
 Please refer to [https://github.com/ultralytics/ultralytics](https://github.com/ultralytics/ultralytics).
 
-
-## Exporting a model with Ultralytics scripts
-
-To export the model as int8 tflite, let's take the default example of a model trained on COCO dataset using Ultralytics CLI:
-
-```
-	yolo export model=yolov8n.pt format=tflite imgsz=256  int8=True
-```
-
-Where yolov8n.pt is the trained weights, the output format is specified as tflite, int8=True means the model will be quantized using 8-bits signed for the weights and the activations.  
-In this case the default COCO 2017 dataset is used by Ultralytics to pre-train the models.  
-If no data for calibration is specified, a very small subset of images of COCO 2017 will be downloaded and the 4 images of the validation set will be used to calibrate.
-From our experiment, the quantization is nevertheless efficient even more than using the full validation dataset of COCO (that you can test by using "data=coco.yaml").
-
-
-By default the exported models are:
-1. A tensorflow float saved model, the saved model generated differs from exporting directly to saved model as the output is normalized to allow quantization: yolov8n_saved_model directory.
-2. An onnx float model: yolov8n.onnx.
-3. A quantized model per tensor with input / output in integer int8 format: yolov8n_saved_model/yolov8n_integer_quant.tflite.
-4. A quantized model per tensor with input / output in float format: yolov8n_saved_model/yolov8n_full_integer_quant.tflite.
-
-> [!TIP] 
-It is recommended to use per-channel quantization to better maintain the accuracy, so we recommend to use directly tensorflow lite converter to do the quantization.
-
-Start from the generated saved model (1 above) as input for the tensorflow converter. Be sure to used the saved model generated through the export command with int8=True.  
-A script is provided to quantize the model, the yaml file provide the quantization information (see below details).
-
-For deployment the model shall be quantized with input as uint8 and output as float or int8.
-
 > [!NOTE] 
 > Yolov5 
 
@@ -90,8 +61,69 @@ For deployment the model shall be quantized with input as uint8 and output as fl
 > To deploy in the STM32 model zoo, use the `yolo_v5u` model_type.
 
 
-## Model quantization
+## Model export and quantization
 
+### Option 1: exporting a quantized model with Ultralytics scripts
+
+By default, Ultralytcis scripts are using per-tensor quantization, whereas to better maintain accuracy quantization per-channel is recommended.
+ST toolchain is expecting per-channel quantization, per-tensor support is experimental and not recommended.
+
+> To use per-channel with Ultralytics scripts, the file ultralytics/engine/exporter.py shall be modified.
+> Locate it in your installation. If installed through pip in a conda environment, it should be located in:  
+> .conda/envs/my_env/Lib/site-packages/ultralytics/engine  
+> Open the exporter.py file and modify the following line of the onn2tf.convert callback:  
+> quant_type="per-tensor",  # "per-tensor" (faster) or "per-channel" (slower but more accurate)  
+> to  
+> quant_type="per-channel",  # "per-tensor" (faster) or "per-channel" (slower but more accurate)
+
+To export the model as int8 tflite, let's take the default example of a model trained on COCO dataset using Ultralytics CLI:
+
+```
+	yolo export model=yolov8n.pt format=tflite imgsz=256 int8=True
+```
+
+Where yolov8n.pt is the trained weights, the output format is specified as tflite, int8=True means the model will be quantized using 8-bits signed for the weights and the activations.  
+In this case the default COCO 2017 dataset is used by Ultralytics to pre-train the models.  
+If no data for calibration is specified, a very small subset of images of COCO 2017 will be downloaded and the 4 images of the validation set will be used to calibrate.
+From our experiment, the quantization is nevertheless efficient even more than using the full validation dataset of COCO (that you can test by using "data=coco.yaml").
+
+By default the exported models are:
+1. A tensorflow float saved model, the saved model generated differs from exporting directly to saved model as the output is normalized to allow quantization: yolov8n_saved_model directory.
+2. An onnx float model: yolov8n.onnx.
+3. A quantized model with input / output in integer int8 format: yolov8n_saved_model/yolov8n_integer_quant.tflite.
+4. A quantized model with input / output in float format: yolov8n_saved_model/yolov8n_full_integer_quant.tflite.
+
+For deployment, both models yolov8n_integer_quant.tflite and yolov8n_full_integer_quant.tflite can be used.
+Specific options in ST Edge AI Core toolchain manage the adequate convertion for the input that for deployment shall be uint8.
+
+### Option2: exporting a model with Ultralytics scripts and quantize with ST scripts
+
+### Export the model to saved model with Ultralytics scripts
+
+To export the model as saved model but with the quantized friendly normalization, use the same export command as for int8 tflite.
+Let's take the default example of a model trained on COCO dataset using Ultralytics CLI:
+
+```
+	yolo export model=yolov8n.pt format=tflite imgsz=256  int8=True
+```
+
+Where yolov8n.pt is the trained weights, the output format is specified as tflite, int8=True means the model will be quantized using 8-bits signed for the weights and the activations.  
+In this case the default COCO 2017 dataset is used by Ultralytics to pre-train the models.  
+If no data for calibration is specified, a very small subset of images of COCO 2017 will be downloaded and the 4 images of the validation set will be used to calibrate.
+From our experiment, the quantization is nevertheless efficient even more than using the full validation dataset of COCO (that you can test by using "data=coco.yaml").
+
+By default the exported models are:
+1. A tensorflow float saved model, the saved model generated differs from exporting directly to saved model as the output is normalized to allow quantization: yolov8n_saved_model directory.
+2. An onnx float model: yolov8n.onnx.
+3. A quantized model per tensor with input / output in integer int8 format: yolov8n_saved_model/yolov8n_integer_quant.tflite.
+4. A quantized model per tensor with input / output in float format: yolov8n_saved_model/yolov8n_full_integer_quant.tflite.
+
+### Quantize the model with ST scripts
+
+Start from the generated saved model (1 above) as input for the tensorflow converter. Be sure to used the saved model generated through the export command with int8=True.  
+A script is provided to quantize the model, the yaml file provide the quantization information (see below details).
+
+For deployment the model shall be quantized with input as uint8 and output as float or int8.
 You can find the quantization scripts here:  
 [https://github.com/STMicroelectronics/stm32ai-modelzoo-services/tree/main/tutorials/scripts/yolov8_quantization](https://github.com/STMicroelectronics/stm32ai-modelzoo-services/tree/main/tutorials/scripts/yolov8_quantization)
 
@@ -217,7 +249,7 @@ Use the model with float input and output, then use the CLI to evaluate the mode
 
 ## Deployment of the quantized model on the STM32N6
 
-The models with uint8 input and float or int8 output can be deployed using the STM32 model zoo deployment service:
+The models with uint8, int8 or float input and float or int8 output can be deployed using the STM32 model zoo deployment service:
 [https://github.com/STMicroelectronics/stm32ai-modelzoo-services/tree/main/object_detection/deployment](https://github.com/STMicroelectronics/stm32ai-modelzoo-services/tree/main/object_detection/deployment)
 
 Configuration of the post-processing parameters is done through the configuration yaml file:
@@ -226,7 +258,9 @@ Configuration of the post-processing parameters is done through the configuratio
 * The Intersection over Union or NMS threshold for the Non Maximum Suppression algorithm is configured through the postprocessing "NMS_thresh" parameter.
 * The maximum number of boxes per class kept after post-processing. After filtering by the confidence and iou thresholds only the corresponding number of boxes with the highest confidence are kept. It is configured through the postprocessing "max_detection_boxes" parameter.
 
-For model with int8 output, the application will detect automatically the zero point and scale to apply for the post processing.  
+For model with int8 output, the application will detect automatically the zero point and scale to apply for the post processing.
+Specific options in ST Edge AI Core toolchain manage the adequate convertion for the input format that for deployment shall be uint8.
+Both float and int8 output are supported by the post-processing.
 
 > [!NOTE] 
 > Yolov5

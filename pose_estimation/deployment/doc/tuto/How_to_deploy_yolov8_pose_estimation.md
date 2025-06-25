@@ -31,7 +31,7 @@ The latest release of Ultralytics fixed the quantization issue on the pose estim
 By default, Ultralytics requirements do not install the packages required to export to onnx or tensorflow lite.
 When exporting for the first time, it will either use pre-installed packages or do an auto update installing the latest versions which then causes compatibility issues.
 To ensure compatibility, you need to install (or downgrade) the versions of tensorflow, onnx and onnxruntime following below requirements:
-Ultralytics version has to be <= 8.3.88
+Validated on Ultralytics version 8.3.88
 Use a python 3.9 environment (for the tflite_support package dependency)
 Tensorflow version between 2.8.3 and 2.15.1
 ONNX version between 1.12.0 and 1.15.0
@@ -66,8 +66,8 @@ From our experiment, the quantization is nevertheless efficient even more than u
 By default the exported models are:
 1. A tensorflow float saved model, the saved model generated differs from exporting directly to saved model as the output is normalized to allow quantization: yolov8n-pose_saved_model directory.
 2. An onnx float model: yolov8n-pose.onnx.
-3. A quantized model per tensor with input / output in integer int8 format: yolov8n-pose_saved_model/yolov8n-pose_integer_quant.tflite.
-4. A quantized model per tensor with input / output in float format: yolov8n-pose_saved_model/yolov8n-pose_full_integer_quant.tflite.
+3. A quantized model per tensor with input / output in integer int8 format: yolov8n-pose_saved_model/yolov8n-pose_full_integer_quant.tflite.
+4. A quantized model per tensor with input / output in float format: yolov8n-pose_saved_model/yolov8n-pose_integer_quant.tflite.
 
 > [!TIP] 
 > It is recommended to use per-channel quantization to better maintain the accuracy, so we recommend to use directly tensorflow lite converter to do the quantization.

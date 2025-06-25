@@ -30,7 +30,7 @@ If you want to train, you can use directly Ultralytics repository at [https://gi
 By default, Ultralytics requirements do not install the packages required to export to onnx or tensorflow lite.
 When exporting for the first time, it will either use pre-installed packages or do an auto update installing the latest versions which then causes compatibility issues.
 To ensure compatibility, you need to install (or downgrade) the versions of tensorflow, onnx and onnxruntime following below requirements:
-Ultralytics version has to be <= 8.3.88
+Validated on Ultralytics version 8.3.88
 Tensorflow version between 2.8.3 and 2.15.1
 ONNX version between 1.12.0 and 1.15.0
 ONNX runtime version between 1.13 and 1.18.1
@@ -74,17 +74,17 @@ From our experiment, the quantization is nevertheless efficient even more than u
 By default the exported models are:
 1. A tensorflow float saved model, the saved model generated differs from exporting directly to saved model as the output is normalized to allow quantization: yolov8n-seg_saved_model directory.
 2. An onnx float model: yolov8n-seg.onnx.
-3. A quantized model with input / output in integer int8 format: yolov8n-seg_saved_model/yolov8n-seg_integer_quant.tflite.
-4. A quantized model with input / output in float format: yolov8n-seg_saved_model/yolov8n-seg_full_integer_quant.tflite.
+3. A quantized model with input / output in integer int8 format: yolov8n-seg_saved_model/yolov8n-seg_full_integer_quant.tflite.
+4. A quantized model with input / output in float format: yolov8n-seg_saved_model/yolov8n-seg_integer_quant.tflite.
 
-For deployment the model shall be quantized with input as int8 and output as int8: yolov8n-seg_saved_model/yolov8n-seg_integer_quant.tflite
+For deployment the model shall be quantized with input as int8 and output as int8: yolov8n-seg_saved_model/yolov8n-seg_full_integer_quant.tflite
 
 ## Evaluation of the quantized model with Ultralytics scripts
 
 Use the model with int8 input and output, then use the CLI to evaluate the model on the COCO validation set:
 
 ```
-	yolo segment val model=./quantized_models/yolov8n-seg_integer_quant.tflite data=coco.yaml imgsz=256
+	yolo segment val model=./quantized_models/yolov8n-seg_full_integer_quant.tflite data=coco.yaml imgsz=256
 ```
 
 ## Deployment of the quantized model on the STM32N6

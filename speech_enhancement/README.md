@@ -1,18 +1,18 @@
 # Speech enhancement STM32 model zoo
 
 ## Directory Components:
-* [src/deployment](src/deployment/README.md) contains the necessary files and scripts to deploy a speech enhancement model on STM32N6.
-* [src](src/README.md) contains code to train, evaluate, benchmark and quantize speech enhancement models
+* [docs](./docs/) contains all readmes and documentation specific to the speech enhancement use case.
+* [src](./docs/README_OVERVIEW.md) contains code to train, evaluate, benchmark, quantize and deploy speech enhancement models.
 
 
 ## Quick & easy examples:
 The `operation_mode` top-level parameter in the [configuration file](./user_config.yaml) specifies the operations or the service you want to execute. This may be a single operation or a set of chained operations.
 
 You can refer to the README links below that provide typical examples of operation modes, and tutorials on specific services:
-   - [training](./src/trainers/README.md)
-   - [quantization](./src/quantization/README.md)
-   - [evaluation](./src/evaluators/README.md)
-   - [deployment](./src/deployment/README.md)
+   - [training](./docs/README_TRAINING.md)
+   - [quantization](./docs/README_QUANTIZATION.md)
+   - [evaluation](./docs/README_EVALUATION.md)
+   - [deployment](./docs/README_DEPLOYMENT.md)
 
 To help you get started, configuration file examples are located in the [config_file_examples](./src/config_file_examples/) folder.
 

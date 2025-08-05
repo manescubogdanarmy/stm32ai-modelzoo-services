@@ -7,6 +7,7 @@
 #  *--------------------------------------------------------------------------------------------*/
 
 import os
+import cv2
 import numpy as np
 from pathlib import Path
 import tensorflow as tf
@@ -18,10 +19,98 @@ from hydra.core.hydra_config import HydraConfig
 
 from common.utils import ai_runner_interp, ai_interp_input_quant, ai_interp_outputs_dequant
 from common.data_augmentation import remap_pixel_values_range
-from src.utils import ai_runner_invoke, bbox_normalized_to_abs_coords, plot_bounding_boxes
+from src.utils import ai_runner_invoke, bbox_normalized_to_abs_coords, plot_bounding_boxes, model_family
 from src.preprocessing  import get_prediction_data_loader
 from src.postprocessing  import get_nmsed_detections
 
+def crop_and_save(image_path, image_array, boxes, base_filename, output_dir, cfg, stretch_percents=None):
+    """
+    Crop and save images with independent stretching for each coordinate.
+
+    Args:
+        image_path: Path to the original image.
+        image_array: The resized or processed image array (used for coordinate normalization).
+        boxes: List of bounding boxes (xmin, ymin, xmax, ymax) relative to image_array.
+        base_filename: Base filename for saving crops.
+        output_dir: Directory to save cropped images.
+        cfg: Configuration object.
+        stretch_percents: List of 4 floats (stretch_xmin%, stretch_ymin%, stretch_xmax%, stretch_ymax%)
+                         representing the stretch percentage for each coordinate.
+                         If None, defaults to (0, 0, 0, 0) (no stretch).
+    """
+    if stretch_percents is None:
+        stretch_percents = [0, 0, 0, 0]
+
+    original_image = cv2.imread(image_path.numpy().decode('utf-8'))
+    if original_image is None:
+        raise FileNotFoundError(f"Image not found at path: {image_path}")
+
+    h_array, w_array = image_array.shape[:2]
+    h_orig, w_orig = original_image.shape[:2]
+
+    # Create a subfolder for this image inside the output directory
+    image_folder = os.path.join(output_dir, base_filename)
+    os.makedirs(image_folder, exist_ok=True)
+
+    for i, box in enumerate(boxes):
+        xmin, ymin, xmax, ymax = box
+
+        # Normalize coordinates based on image_array size
+        xmin_norm = xmin / w_array
+        ymin_norm = ymin / h_array
+        xmax_norm = xmax / w_array
+        ymax_norm = ymax / h_array
+
+        # Scale normalized coordinates to original image size
+        xmin_scaled = int(xmin_norm * w_orig)
+        ymin_scaled = int(ymin_norm * h_orig)
+        xmax_scaled = int(xmax_norm * w_orig)
+        ymax_scaled = int(ymax_norm * h_orig)
+
+        # Calculate width and height of the box
+        box_width = xmax_scaled - xmin_scaled
+        box_height = ymax_scaled - ymin_scaled
+
+        # Unpack stretch percentages for each coordinate
+        stretch_xmin_percent, stretch_ymin_percent, stretch_xmax_percent, stretch_ymax_percent = stretch_percents
+
+        # Calculate stretch amounts for each coordinate
+        stretch_xmin = int(box_width * (stretch_xmin_percent / 100))
+        stretch_ymin = int(box_height * (stretch_ymin_percent / 100))
+        stretch_xmax = int(box_width * (stretch_xmax_percent / 100))
+        stretch_ymax = int(box_height * (stretch_ymax_percent / 100))
+
+        # Apply stretching by adjusting each coordinate independently
+        xmin_stretched = max(0, xmin_scaled - stretch_xmin)
+        ymin_stretched = max(0, ymin_scaled - stretch_ymin)
+        xmax_stretched = min(w_orig - 1, xmax_scaled + stretch_xmax)
+        ymax_stretched = min(h_orig - 1, ymax_scaled + stretch_ymax)
+
+        # Check if coordinates are valid after stretching
+        if xmax_stretched <= xmin_stretched or ymax_stretched <= ymin_stretched:
+            # Skipping invalid box
+            continue
+
+        cropped_bgr = original_image[ymin_stretched:ymax_stretched, xmin_stretched:xmax_stretched]
+
+        if cropped_bgr.size == 0:
+            # Skipping empty crop for box
+            continue
+
+        # Convert BGR to RGB for displaying with matplotlib
+        cropped_rgb = cv2.cvtColor(cropped_bgr, cv2.COLOR_BGR2RGB)
+
+        # Show the cropped image using matplotlib
+        if cfg.general.display_figures:
+            plt.figure(figsize=(4, 4))
+            plt.imshow(cropped_rgb)
+            plt.title(f"Crop {i}")
+            plt.axis('off')
+            plt.show()
+
+        # Save the cropped image inside the image-specific folder
+        output_filename = os.path.join(image_folder, f"{base_filename}_crop_{i}.jpg")
+        cv2.imwrite(output_filename, cropped_bgr)
 
 def _view_image_and_boxes(cfg, image, img_path, boxes=None, classes=None, scores=None, class_names=None):
         
@@ -58,6 +147,9 @@ def _view_image_and_boxes(cfg, image, img_path, boxes=None, classes=None, scores
     if cfg.general.display_figures:
         plt.show()
     plt.close()
+    # Crop and save predicted boxes
+    if model_family(cfg.general.model_type) in ["face_detect_front"]:
+        crop_and_save(img_path, image, boxes, file_name, output_dir, cfg, stretch_percents = cfg.postprocessing.crop_stretch_percents)
     
 
 def _predict_float_model(cfg, model_path):
@@ -127,17 +219,29 @@ def _predict_quantized_model(cfg, model_path):
         tensor_shape = (batch_size,) + input_shape
         interpreter.resize_tensor_input(input_index, tensor_shape)
         interpreter.allocate_tensors()
-    
-        # Rescale the image using the model's coefficients
-        scale = input_details['quantization'][0]
-        zero_points = input_details['quantization'][1]
-        predict_images = images / scale + zero_points
-        
-        # Convert the image data type to the model input data type
-        # and clip to the min/max values of this data type
+
         input_dtype = input_details['dtype']
+        is_float = np.issubdtype(input_dtype, np.floating)
+
+        if is_float:
+            predict_images = images
+        else:
+            # Rescale the image using the model's coefficients
+            scale = input_details['quantization'][0]
+            zero_points = input_details['quantization'][1]
+            predict_images = images / scale + zero_points
+    
+        # Convert the image data type to the model input data type
         predict_images = tf.cast(predict_images, input_dtype)
-        predict_images = tf.clip_by_value(predict_images, np.iinfo(input_dtype).min, np.iinfo(input_dtype).max)
+        # and clip to the min/max values of this data type
+        if is_float:
+            min_val = np.finfo(input_dtype).min
+            max_val = np.finfo(input_dtype).max
+        else:
+            min_val = np.iinfo(input_dtype).min
+            max_val = np.iinfo(input_dtype).max
+
+        predict_images = tf.clip_by_value(predict_images, min_val, max_val)
 
         if target == 'host':
             # Predict the images
@@ -147,10 +251,26 @@ def _predict_quantized_model(cfg, model_path):
             data        = ai_interp_input_quant(ai_runner_interpreter,images.numpy(),cfg.preprocessing.rescaling.scale, cfg.preprocessing.rescaling.offset,'.tflite')
             predictions = ai_runner_invoke(data,ai_runner_interpreter)
             predictions = ai_interp_outputs_dequant(ai_runner_interpreter,predictions)
-
-        if len(output_details) == 3:
+        
+        if model_family(cfg.general.model_type) in ["face_detect_front"]:
+            predictions = []
             if target == 'host':
-                # SSD model: outputs are scores, boxes and anchors.
+                # face_detect_model_front
+                predictions_r = (interpreter.get_tensor(output_details[0]['index']),
+                               interpreter.get_tensor(output_details[1]['index']),
+                               interpreter.get_tensor(output_details[2]['index']),
+                               interpreter.get_tensor(output_details[3]['index']))
+                for i, pred in enumerate(predictions_r):
+                    is_float = np.issubdtype(pred.dtype, np.floating)
+                    if not is_float:
+                        scale, zero_point = output_details[i]['quantization']
+                        out_deq = (pred.astype(np.float32) - zero_point) * scale
+                        predictions.append(out_deq)
+                    else:
+                        predictions.append(pred)
+        elif model_family(cfg.general.model_type) in ["ssd", "st_yolo_x"]:
+            if target == 'host':
+                # Model outputs are scores, boxes and anchors.
                 predictions = (interpreter.get_tensor(output_details[0]['index']),
                                interpreter.get_tensor(output_details[1]['index']),
                                interpreter.get_tensor(output_details[2]['index']))
@@ -159,6 +279,10 @@ def _predict_quantized_model(cfg, model_path):
                 predictions = interpreter.get_tensor(output_details[0]['index'])
             elif target == 'stedgeai_host' or target == 'stedgeai_n6':
                 predictions = predictions[0]
+
+        # The TFLITE version of yolov8 has channel-first outputs
+        if model_family(cfg.general.model_type) in ["yolo_v8"]:
+            predictions = tf.transpose(predictions, perm=[0, 2, 1])
 
         # Decode and NMS the predictions
         boxes, scores, classes = get_nmsed_detections(cfg, predictions, image_size)
@@ -226,6 +350,15 @@ def _predict_onnx_model(cfg, model_path, num_classes=None):
             data        = ai_interp_input_quant(ai_runner_interpreter,channel_first_images,cfg.preprocessing.rescaling.scale,cfg.preprocessing.rescaling.offset,'.onnx')
             predictions = ai_runner_invoke(data,ai_runner_interpreter)
             predictions = ai_interp_outputs_dequant(ai_runner_interpreter,predictions)
+
+        # SSD models outputs are still channel-last after h5->onnx conversion
+        if model_family(cfg.general.model_type) not in ["ssd"]:
+            # For each output of the model make it channel-last instead of channel-first
+            for p in range(len(predictions)):
+                if len(predictions[p].shape)==3:
+                    predictions[p] = tf.transpose(predictions[p],[0,2,1])
+                elif len(predictions[p].shape)==4:
+                    predictions[p] = tf.transpose(predictions[p],[0,2,3,1])
 
         if len(predictions) == 1:
             predictions = predictions[0]

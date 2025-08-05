@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='stm32msg.proto',
   package='',
   syntax='proto2',
-  serialized_pb=_b('\n\x0estm32msg.proto\"f\n\x06reqMsg\x12\r\n\x05reqid\x18\x01 \x02(\r\x12#\n\x03\x63md\x18\x02 \x02(\x0e\x32\x08.EnumCmd:\x0c\x43MD_SYS_INFO\x12\r\n\x05param\x18\x03 \x02(\r\x12\x0c\n\x04name\x18\x04 \x02(\t\x12\x0b\n\x03opt\x18\x05 \x02(\r\"\xaf\x01\n\x0f\x61iTensorDescMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\x06\x66ormat\x18\x02 \x02(\r:\x01\x30\x12\x0f\n\x04size\x18\x03 \x02(\r:\x01\x30\x12\x11\n\x06n_dims\x18\x04 \x02(\r:\x01\x31\x12\x0c\n\x04\x64ims\x18\x05 \x03(\r\x12\x10\n\x05scale\x18\x06 \x02(\x02:\x01\x30\x12\x14\n\tzeropoint\x18\x07 \x02(\x05:\x01\x30\x12\x0f\n\x04\x61\x64\x64r\x18\x08 \x02(\r:\x01\x30\x12\x10\n\x05\x66lags\x18\t \x02(\r:\x01\x30\"J\n\taiDataMsg\x12\x0f\n\x04type\x18\x01 \x02(\r:\x01\x30\x12\x0c\n\x04size\x18\x02 \x02(\r\x12\x0f\n\x04\x61\x64\x64r\x18\x03 \x02(\r:\x01\x30\x12\r\n\x05\x64\x61tas\x18\x04 \x02(\x0c\"\x98\x01\n\raiOperatorMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04type\x18\x02 \x02(\r\x12\n\n\x02id\x18\x03 \x02(\r\x12\x10\n\x08\x64uration\x18\x04 \x02(\x02\x12\x14\n\x0c\x63ounter_type\x18\x05 \x02(\r\x12\x10\n\x08\x63ounters\x18\x06 \x03(\r\x12\x12\n\nstack_used\x18\x07 \x02(\x05\x12\x11\n\theap_used\x18\x08 \x02(\x05\"G\n\x0b\x61iTensorMsg\x12\x1e\n\x04\x64\x65sc\x18\x01 \x02(\x0b\x32\x10.aiTensorDescMsg\x12\x18\n\x04\x64\x61ta\x18\x02 \x02(\x0b\x32\n.aiDataMsg\"\x9b\x03\n\x0e\x61iModelInfoMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04rtid\x18\x02 \x02(\r\x12\x11\n\tsignature\x18\x03 \x02(\t\x12\x18\n\x10\x63ompile_datetime\x18\x04 \x02(\t\x12\x17\n\x0fruntime_version\x18\x05 \x02(\r\x12\x14\n\x0ctool_version\x18\x06 \x02(\r\x12\x0e\n\x06n_macc\x18\x07 \x02(\x04\x12\x0f\n\x07n_nodes\x18\x08 \x02(\r\x12\x10\n\x08n_inputs\x18\n \x02(\r\x12 \n\x06inputs\x18\x0b \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x11\n\tn_outputs\x18\x0c \x02(\r\x12!\n\x07outputs\x18\r \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x15\n\rn_activations\x18\x0e \x02(\r\x12%\n\x0b\x61\x63tivations\x18\x0f \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x10\n\x08n_params\x18\x10 \x02(\r\x12 \n\x06params\x18\x11 \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x14\n\x0cruntime_desc\x18\x14 \x02(\t\"<\n\x07syncMsg\x12\x0f\n\x07version\x18\x01 \x02(\r\x12\x12\n\ncapability\x18\x04 \x02(\r\x12\x0c\n\x04rtid\x18\x05 \x02(\r\"Y\n\nsysinfoMsg\x12\r\n\x05\x64\x65vid\x18\x01 \x02(\r\x12\x0e\n\x06sclock\x18\x02 \x02(\r\x12\x0e\n\x06hclock\x18\x03 \x02(\r\x12\r\n\x05\x63\x61\x63he\x18\x04 \x02(\r\x12\r\n\x05\x65xtra\x18\x05 \x03(\r\"2\n\x06\x61\x63kMsg\x12\r\n\x05param\x18\x01 \x02(\r\x12\x19\n\x05\x65rror\x18\x02 \x02(\x0e\x32\n.EnumError\"$\n\x06logMsg\x12\r\n\x05level\x18\x01 \x02(\r\x12\x0b\n\x03str\x18\x02 \x02(\t\"\xa2\x02\n\x07respMsg\x12\r\n\x05reqid\x18\x01 \x02(\r\x12\x19\n\x05state\x18\x02 \x02(\x0e\x32\n.EnumState\x12\x18\n\x04sync\x18\n \x01(\x0b\x32\x08.syncMsgH\x00\x12\x1c\n\x05sinfo\x18\x0b \x01(\x0b\x32\x0b.sysinfoMsgH\x00\x12\x16\n\x03\x61\x63k\x18\x0c \x01(\x0b\x32\x07.ackMsgH\x00\x12\x16\n\x03log\x18\r \x01(\x0b\x32\x07.logMsgH\x00\x12\x1a\n\x04\x64\x61ta\x18\x0f \x01(\x0b\x32\n.aiDataMsgH\x00\x12\x1c\n\x02op\x18\x10 \x01(\x0b\x32\x0e.aiOperatorMsgH\x00\x12\x1e\n\x06tensor\x18\x11 \x01(\x0b\x32\x0c.aiTensorMsgH\x00\x12 \n\x05minfo\x18\x16 \x01(\x0b\x32\x0f.aiModelInfoMsgH\x00\x42\t\n\x07payload*7\n\x0b\x45numVersion\x12\x13\n\x0fP_VERSION_MAJOR\x10\x03\x12\x13\n\x0fP_VERSION_MINOR\x10\x01*\x86\x01\n\x0e\x45numLowLevelIO\x12\x17\n\x12IO_HEADER_EOM_FLAG\x10\x80\x01\x12\x16\n\x12IO_HEADER_SIZE_MSK\x10\x7f\x12\x15\n\x11IO_IN_PACKET_SIZE\x10 \x12\x16\n\x12IO_OUT_PACKET_SIZE\x10 \x12\x10\n\x0bIO_OUT_SYNC\x10\xaa\x01\x1a\x02\x10\x01*y\n\rEnumAiRuntime\x12\x10\n\x0c\x41I_RT_STM_AI\x10\x01\x12\x0e\n\nAI_RT_TFLM\x10\x02\x12\r\n\tAI_RT_TVM\x10\x03\x12\x0f\n\x0b\x41I_RT_ATONN\x10\x04\x12\x0e\n\nAI_RT_GLOW\x10\x05\x12\x16\n\x12\x41I_RT_STM_AI_RELOC\x10\x06*w\n\x10\x45numAiApiRuntime\x12\x12\n\x0e\x41I_RT_API_NONE\x10\x00\x12\x13\n\x0f\x41I_RT_API_ST_AI\x10\x01\x12\x12\n\x0e\x41I_RT_API_LITE\x10\x02\x12\x13\n\x0f\x41I_RT_API_RELOC\x10\x04\x12\x11\n\rAI_RT_API_POS\x10\x08*i\n\tEnumTools\x12\n\n\x06\x41I_GCC\x10\x01\x12\n\n\x06\x41I_IAR\x10\x02\x12\x0c\n\x08\x41I_MDK_5\x10\x03\x12\x0c\n\x08\x41I_MDK_6\x10\x04\x12\n\n\x06\x41I_HTC\x10\x05\x12\n\n\x06\x41I_GHS\x10\x06\x12\x10\n\x0c\x41I_TOOLS_POS\x10\x10*|\n\x0e\x45numCapability\x12\x10\n\x0c\x43\x41P_OBSERVER\x10\x01\x12\r\n\tCAP_RELOC\x10\x02\x12\x12\n\x0e\x43\x41P_READ_WRITE\x10\x08\x12\x0e\n\nCAP_RANDOM\x10\x10\x12\x11\n\rCAP_FILTERING\x10 \x12\x12\n\rCAP_SELF_TEST\x10\x80\x01*\xed\x01\n\x07\x45numCmd\x12\x0c\n\x08\x43MD_SYNC\x10\x00\x12\x10\n\x0c\x43MD_SYS_INFO\x10\x01\x12\x14\n\x10\x43MD_NETWORK_INFO\x10\n\x12\x13\n\x0f\x43MD_NETWORK_RUN\x10\x0b\x12\x16\n\x12\x43MD_NETWORK_REPORT\x10\x0c\x12\x13\n\x0f\x43MD_MEMORY_READ\x10\x14\x12\x14\n\x10\x43MD_MEMORY_WRITE\x10\x15\x12\x17\n\x13\x43MD_MEMORY_CHECKSUM\x10\x16\x12\x12\n\x0e\x43MD_SET_FILTER\x10\x1e\x12\x0c\n\x08\x43MD_TEST\x10\x64\x12\x19\n\x14\x43MD_TEST_UNSUPPORTED\x10\xc8\x01*Q\n\tEnumState\x12\n\n\x06S_IDLE\x10\x00\x12\r\n\tS_WAITING\x10\x01\x12\x10\n\x0cS_PROCESSING\x10\x02\x12\n\n\x06S_DONE\x10\x03\x12\x0b\n\x07S_ERROR\x10\x04*\xd3\x01\n\tEnumError\x12\n\n\x06\x45_NONE\x10\x00\x12\x12\n\x0e\x45_INVALID_SIZE\x10\x01\x12\x14\n\x10\x45_INVALID_FORMAT\x10\x02\x12\x13\n\x0f\x45_INVALID_STATE\x10\x03\x12\x13\n\x0f\x45_INVALID_PARAM\x10\x04\x12\x13\n\x0f\x45_INVALID_SHAPE\x10\x05\x12\x11\n\rE_INVALID_CMD\x10\x06\x12\x1b\n\x17\x45_INVALID_UNINITIALIZED\x10\x07\x12\x12\n\x0e\x45_MEM_OVERFLOW\x10\x08\x12\r\n\tE_GENERIC\x10\n*j\n\x11\x45numCounterFormat\x12\x13\n\x0f\x43OUNTER_FMT_64B\x10\x00\x12\x13\n\x0f\x43OUNTER_FMT_32B\x10\x01\x12\x16\n\x10\x43OUNTER_FMT_MASK\x10\xff\xff\x03\x12\x13\n\x0f\x43OUNTER_FMT_POS\x10\x10*@\n\x0f\x45numCounterType\x12\x14\n\x10\x43OUNTER_TYPE_CPU\x10\x00\x12\x17\n\x11\x43OUNTER_TYPE_MASK\x10\xff\xff\x03*\xfd\x01\n\x0c\x45numRunParam\x12\x16\n\x12P_RUN_MODE_IO_ONLY\x10\x01\x12\x18\n\x14P_RUN_MODE_PER_LAYER\x10\x02\x12\"\n\x1eP_RUN_MODE_PER_LAYER_WITH_DATA\x10\x04\x12\x13\n\x0fP_RUN_MODE_PERF\x10\x08\x12\x13\n\x0fP_RUN_MODE_MASK\x10\x0f\x12\x15\n\x10P_RUN_CONF_DEBUG\x10\x80\x02\x12\x1b\n\x16P_RUN_CONF_CONST_VALUE\x10\x80\x04\x12\x1c\n\x17P_RUN_CONF_DIRECT_WRITE\x10\x80\x08\x12\x1b\n\x16P_RUN_CONF_DIRECT_READ\x10\x80\x10*\xfe\x01\n\x0c\x45numShapeFmt\x12\x13\n\x0f\x46_SHAPE_FMT_UND\x10\x00\x12\x14\n\x10\x46_SHAPE_FMT_BCWH\x10\x01\x12\x14\n\x10\x46_SHAPE_FMT_BHWC\x10\x02\x12\x14\n\x10\x46_SHAPE_FMT_BCHW\x10\x03\x12\x15\n\x11\x46_SHAPE_FMT_ST_AI\x10\x04\x12\x13\n\x0f\x46_SHAPE_FMT_RAW\x10\x05\x12\x1d\n\x19\x46_SHAPE_FMT_CHANNEL_FIRST\x10\x10\x12\x1c\n\x18\x46_SHAPE_FMT_CHANNEL_LAST\x10 \x12\x19\n\x15\x46_SHAPE_FMT_HAS_BATCH\x10@\x12\x13\n\x0f\x46_SHAPE_FMT_POS\x10\x18*\x8c\x01\n\x0f\x45numDataFmtType\x12\x16\n\x12\x44\x41TA_FMT_TYPE_NONE\x10\x00\x12\x17\n\x13\x44\x41TA_FMT_TYPE_FLOAT\x10\x01\x12\x19\n\x15\x44\x41TA_FMT_TYPE_INTEGER\x10\x02\x12\x16\n\x12\x44\x41TA_FMT_TYPE_BOOL\x10\x03\x12\x15\n\x11\x44\x41TA_FMT_TYPE_FXP\x10\x0f*\xd6\x01\n\x0e\x45numTensorFlag\x12\x14\n\x10TENSOR_FLAG_NONE\x10\x00\x12\x15\n\x11TENSOR_FLAG_INPUT\x10\x01\x12\x16\n\x12TENSOR_FLAG_OUTPUT\x10\x02\x12\x18\n\x14TENSOR_FLAG_INTERNAL\x10\x04\x12\x17\n\x13TENSOR_FLAG_MEMPOOL\x10\x08\x12\x15\n\x10TENSOR_FLAG_LAST\x10\x80\x02\x12\x18\n\x13TENSOR_FLAG_NO_DATA\x10\x80\x04\x12\x1b\n\x16TENSOR_FLAG_IN_MEMPOOL\x10\x80\x08*^\n\x0c\x45numDataType\x12\x12\n\x0e\x44\x41TA_TYPE_NONE\x10\x00\x12\x14\n\x10\x44\x41TA_TYPE_FILTER\x10\x01\x12\x11\n\rDATA_TYPE_MD5\x10\x02\x12\x11\n\rDATA_TYPE_POS\x10\x18*\x97\x01\n\x10\x45numOperatorFlag\x12\x16\n\x12OPERATOR_FLAG_NONE\x10\x00\x12\x1a\n\x16OPERATOR_FLAG_INTERNAL\x10\x01\x12\x16\n\x12OPERATOR_FLAG_LAST\x10\x02\x12 \n\x1cOPERATOR_FLAG_WITHOUT_TENSOR\x10\x04\x12\x15\n\x11OPERATOR_FLAG_POS\x10\x18')
+  serialized_pb=_b('\n\x0estm32msg.proto\"f\n\x06reqMsg\x12\r\n\x05reqid\x18\x01 \x02(\r\x12#\n\x03\x63md\x18\x02 \x02(\x0e\x32\x08.EnumCmd:\x0c\x43MD_SYS_INFO\x12\r\n\x05param\x18\x03 \x02(\r\x12\x0c\n\x04name\x18\x04 \x02(\t\x12\x0b\n\x03opt\x18\x05 \x02(\r\"\xaf\x01\n\x0f\x61iTensorDescMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x11\n\x06\x66ormat\x18\x02 \x02(\r:\x01\x30\x12\x0f\n\x04size\x18\x03 \x02(\r:\x01\x30\x12\x11\n\x06n_dims\x18\x04 \x02(\r:\x01\x31\x12\x0c\n\x04\x64ims\x18\x05 \x03(\r\x12\x10\n\x05scale\x18\x06 \x02(\x02:\x01\x30\x12\x14\n\tzeropoint\x18\x07 \x02(\x05:\x01\x30\x12\x0f\n\x04\x61\x64\x64r\x18\x08 \x02(\r:\x01\x30\x12\x10\n\x05\x66lags\x18\t \x02(\r:\x01\x30\"J\n\taiDataMsg\x12\x0f\n\x04type\x18\x01 \x02(\r:\x01\x30\x12\x0c\n\x04size\x18\x02 \x02(\r\x12\x0f\n\x04\x61\x64\x64r\x18\x03 \x02(\r:\x01\x30\x12\r\n\x05\x64\x61tas\x18\x04 \x02(\x0c\"\x98\x01\n\raiOperatorMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04type\x18\x02 \x02(\r\x12\n\n\x02id\x18\x03 \x02(\r\x12\x10\n\x08\x64uration\x18\x04 \x02(\x02\x12\x14\n\x0c\x63ounter_type\x18\x05 \x02(\r\x12\x10\n\x08\x63ounters\x18\x06 \x03(\r\x12\x12\n\nstack_used\x18\x07 \x02(\x05\x12\x11\n\theap_used\x18\x08 \x02(\x05\"G\n\x0b\x61iTensorMsg\x12\x1e\n\x04\x64\x65sc\x18\x01 \x02(\x0b\x32\x10.aiTensorDescMsg\x12\x18\n\x04\x64\x61ta\x18\x02 \x02(\x0b\x32\n.aiDataMsg\"\x9b\x03\n\x0e\x61iModelInfoMsg\x12\x0c\n\x04name\x18\x01 \x02(\t\x12\x0c\n\x04rtid\x18\x02 \x02(\r\x12\x11\n\tsignature\x18\x03 \x02(\t\x12\x18\n\x10\x63ompile_datetime\x18\x04 \x02(\t\x12\x17\n\x0fruntime_version\x18\x05 \x02(\r\x12\x14\n\x0ctool_version\x18\x06 \x02(\r\x12\x0e\n\x06n_macc\x18\x07 \x02(\x04\x12\x0f\n\x07n_nodes\x18\x08 \x02(\r\x12\x10\n\x08n_inputs\x18\n \x02(\r\x12 \n\x06inputs\x18\x0b \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x11\n\tn_outputs\x18\x0c \x02(\r\x12!\n\x07outputs\x18\r \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x15\n\rn_activations\x18\x0e \x02(\r\x12%\n\x0b\x61\x63tivations\x18\x0f \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x10\n\x08n_params\x18\x10 \x02(\r\x12 \n\x06params\x18\x11 \x03(\x0b\x32\x10.aiTensorDescMsg\x12\x14\n\x0cruntime_desc\x18\x14 \x02(\t\"<\n\x07syncMsg\x12\x0f\n\x07version\x18\x01 \x02(\r\x12\x12\n\ncapability\x18\x04 \x02(\r\x12\x0c\n\x04rtid\x18\x05 \x02(\r\"l\n\nsysinfoMsg\x12\r\n\x05\x64\x65vid\x18\x01 \x02(\r\x12\x0e\n\x06sclock\x18\x02 \x02(\r\x12\x0e\n\x06hclock\x18\x03 \x02(\r\x12\r\n\x05\x63\x61\x63he\x18\x04 \x02(\r\x12\x11\n\tcom_param\x18\x05 \x02(\r\x12\r\n\x05\x65xtra\x18\x06 \x03(\r\"2\n\x06\x61\x63kMsg\x12\r\n\x05param\x18\x01 \x02(\r\x12\x19\n\x05\x65rror\x18\x02 \x02(\x0e\x32\n.EnumError\"$\n\x06logMsg\x12\r\n\x05level\x18\x01 \x02(\r\x12\x0b\n\x03str\x18\x02 \x02(\t\"\xa2\x02\n\x07respMsg\x12\r\n\x05reqid\x18\x01 \x02(\r\x12\x19\n\x05state\x18\x02 \x02(\x0e\x32\n.EnumState\x12\x18\n\x04sync\x18\n \x01(\x0b\x32\x08.syncMsgH\x00\x12\x1c\n\x05sinfo\x18\x0b \x01(\x0b\x32\x0b.sysinfoMsgH\x00\x12\x16\n\x03\x61\x63k\x18\x0c \x01(\x0b\x32\x07.ackMsgH\x00\x12\x16\n\x03log\x18\r \x01(\x0b\x32\x07.logMsgH\x00\x12\x1a\n\x04\x64\x61ta\x18\x0f \x01(\x0b\x32\n.aiDataMsgH\x00\x12\x1c\n\x02op\x18\x10 \x01(\x0b\x32\x0e.aiOperatorMsgH\x00\x12\x1e\n\x06tensor\x18\x11 \x01(\x0b\x32\x0c.aiTensorMsgH\x00\x12 \n\x05minfo\x18\x16 \x01(\x0b\x32\x0f.aiModelInfoMsgH\x00\x42\t\n\x07payload*7\n\x0b\x45numVersion\x12\x13\n\x0fP_VERSION_MAJOR\x10\x03\x12\x13\n\x0fP_VERSION_MINOR\x10\x01*\xc5\x01\n\x0e\x45numLowLevelIO\x12\x17\n\x12IO_HEADER_EOM_FLAG\x10\x80\x01\x12\x18\n\x12IO_HEADER_SIZE_MSK\x10\xff\xff\x01\x12\x15\n\x11IO_IN_PACKET_SIZE\x10 \x12\x16\n\x12IO_OUT_PACKET_SIZE\x10 \x12\x1c\n\x17IO_IN_PACKET_SIZE_LARGE\x10\xfe\x1f\x12\x1d\n\x18IO_OUT_PACKET_SIZE_LARGE\x10\xfe\x1f\x12\x10\n\x0bIO_OUT_SYNC\x10\xaa\x01\x1a\x02\x10\x01*y\n\rEnumAiRuntime\x12\x10\n\x0c\x41I_RT_STM_AI\x10\x01\x12\x0e\n\nAI_RT_TFLM\x10\x02\x12\r\n\tAI_RT_TVM\x10\x03\x12\x0f\n\x0b\x41I_RT_ATONN\x10\x04\x12\x0e\n\nAI_RT_GLOW\x10\x05\x12\x16\n\x12\x41I_RT_STM_AI_RELOC\x10\x06*w\n\x10\x45numAiApiRuntime\x12\x12\n\x0e\x41I_RT_API_NONE\x10\x00\x12\x13\n\x0f\x41I_RT_API_ST_AI\x10\x01\x12\x12\n\x0e\x41I_RT_API_LITE\x10\x02\x12\x13\n\x0f\x41I_RT_API_RELOC\x10\x04\x12\x11\n\rAI_RT_API_POS\x10\x08*i\n\tEnumTools\x12\n\n\x06\x41I_GCC\x10\x01\x12\n\n\x06\x41I_IAR\x10\x02\x12\x0c\n\x08\x41I_MDK_5\x10\x03\x12\x0c\n\x08\x41I_MDK_6\x10\x04\x12\n\n\x06\x41I_HTC\x10\x05\x12\n\n\x06\x41I_GHS\x10\x06\x12\x10\n\x0c\x41I_TOOLS_POS\x10\x10*|\n\x0e\x45numCapability\x12\x10\n\x0c\x43\x41P_OBSERVER\x10\x01\x12\r\n\tCAP_RELOC\x10\x02\x12\x12\n\x0e\x43\x41P_READ_WRITE\x10\x08\x12\x0e\n\nCAP_RANDOM\x10\x10\x12\x11\n\rCAP_FILTERING\x10 \x12\x12\n\rCAP_SELF_TEST\x10\x80\x01*\xed\x01\n\x07\x45numCmd\x12\x0c\n\x08\x43MD_SYNC\x10\x00\x12\x10\n\x0c\x43MD_SYS_INFO\x10\x01\x12\x14\n\x10\x43MD_NETWORK_INFO\x10\n\x12\x13\n\x0f\x43MD_NETWORK_RUN\x10\x0b\x12\x16\n\x12\x43MD_NETWORK_REPORT\x10\x0c\x12\x13\n\x0f\x43MD_MEMORY_READ\x10\x14\x12\x14\n\x10\x43MD_MEMORY_WRITE\x10\x15\x12\x17\n\x13\x43MD_MEMORY_CHECKSUM\x10\x16\x12\x12\n\x0e\x43MD_SET_FILTER\x10\x1e\x12\x0c\n\x08\x43MD_TEST\x10\x64\x12\x19\n\x14\x43MD_TEST_UNSUPPORTED\x10\xc8\x01*Q\n\tEnumState\x12\n\n\x06S_IDLE\x10\x00\x12\r\n\tS_WAITING\x10\x01\x12\x10\n\x0cS_PROCESSING\x10\x02\x12\n\n\x06S_DONE\x10\x03\x12\x0b\n\x07S_ERROR\x10\x04*\xd3\x01\n\tEnumError\x12\n\n\x06\x45_NONE\x10\x00\x12\x12\n\x0e\x45_INVALID_SIZE\x10\x01\x12\x14\n\x10\x45_INVALID_FORMAT\x10\x02\x12\x13\n\x0f\x45_INVALID_STATE\x10\x03\x12\x13\n\x0f\x45_INVALID_PARAM\x10\x04\x12\x13\n\x0f\x45_INVALID_SHAPE\x10\x05\x12\x11\n\rE_INVALID_CMD\x10\x06\x12\x1b\n\x17\x45_INVALID_UNINITIALIZED\x10\x07\x12\x12\n\x0e\x45_MEM_OVERFLOW\x10\x08\x12\r\n\tE_GENERIC\x10\n*j\n\x11\x45numCounterFormat\x12\x13\n\x0f\x43OUNTER_FMT_64B\x10\x00\x12\x13\n\x0f\x43OUNTER_FMT_32B\x10\x01\x12\x16\n\x10\x43OUNTER_FMT_MASK\x10\xff\xff\x03\x12\x13\n\x0f\x43OUNTER_FMT_POS\x10\x10*@\n\x0f\x45numCounterType\x12\x14\n\x10\x43OUNTER_TYPE_CPU\x10\x00\x12\x17\n\x11\x43OUNTER_TYPE_MASK\x10\xff\xff\x03*\xfd\x01\n\x0c\x45numRunParam\x12\x16\n\x12P_RUN_MODE_IO_ONLY\x10\x01\x12\x18\n\x14P_RUN_MODE_PER_LAYER\x10\x02\x12\"\n\x1eP_RUN_MODE_PER_LAYER_WITH_DATA\x10\x04\x12\x13\n\x0fP_RUN_MODE_PERF\x10\x08\x12\x13\n\x0fP_RUN_MODE_MASK\x10\x0f\x12\x15\n\x10P_RUN_CONF_DEBUG\x10\x80\x02\x12\x1b\n\x16P_RUN_CONF_CONST_VALUE\x10\x80\x04\x12\x1c\n\x17P_RUN_CONF_DIRECT_WRITE\x10\x80\x08\x12\x1b\n\x16P_RUN_CONF_DIRECT_READ\x10\x80\x10*\xfe\x01\n\x0c\x45numShapeFmt\x12\x13\n\x0f\x46_SHAPE_FMT_UND\x10\x00\x12\x14\n\x10\x46_SHAPE_FMT_BCWH\x10\x01\x12\x14\n\x10\x46_SHAPE_FMT_BHWC\x10\x02\x12\x14\n\x10\x46_SHAPE_FMT_BCHW\x10\x03\x12\x15\n\x11\x46_SHAPE_FMT_ST_AI\x10\x04\x12\x13\n\x0f\x46_SHAPE_FMT_RAW\x10\x05\x12\x1d\n\x19\x46_SHAPE_FMT_CHANNEL_FIRST\x10\x10\x12\x1c\n\x18\x46_SHAPE_FMT_CHANNEL_LAST\x10 \x12\x19\n\x15\x46_SHAPE_FMT_HAS_BATCH\x10@\x12\x13\n\x0f\x46_SHAPE_FMT_POS\x10\x18*\x8c\x01\n\x0f\x45numDataFmtType\x12\x16\n\x12\x44\x41TA_FMT_TYPE_NONE\x10\x00\x12\x17\n\x13\x44\x41TA_FMT_TYPE_FLOAT\x10\x01\x12\x19\n\x15\x44\x41TA_FMT_TYPE_INTEGER\x10\x02\x12\x16\n\x12\x44\x41TA_FMT_TYPE_BOOL\x10\x03\x12\x15\n\x11\x44\x41TA_FMT_TYPE_FXP\x10\x0f*\xd6\x01\n\x0e\x45numTensorFlag\x12\x14\n\x10TENSOR_FLAG_NONE\x10\x00\x12\x15\n\x11TENSOR_FLAG_INPUT\x10\x01\x12\x16\n\x12TENSOR_FLAG_OUTPUT\x10\x02\x12\x18\n\x14TENSOR_FLAG_INTERNAL\x10\x04\x12\x17\n\x13TENSOR_FLAG_MEMPOOL\x10\x08\x12\x15\n\x10TENSOR_FLAG_LAST\x10\x80\x02\x12\x18\n\x13TENSOR_FLAG_NO_DATA\x10\x80\x04\x12\x1b\n\x16TENSOR_FLAG_IN_MEMPOOL\x10\x80\x08*^\n\x0c\x45numDataType\x12\x12\n\x0e\x44\x41TA_TYPE_NONE\x10\x00\x12\x14\n\x10\x44\x41TA_TYPE_FILTER\x10\x01\x12\x11\n\rDATA_TYPE_MD5\x10\x02\x12\x11\n\rDATA_TYPE_POS\x10\x18*\x97\x01\n\x10\x45numOperatorFlag\x12\x16\n\x12OPERATOR_FLAG_NONE\x10\x00\x12\x1a\n\x16OPERATOR_FLAG_INTERNAL\x10\x01\x12\x16\n\x12OPERATOR_FLAG_LAST\x10\x02\x12 \n\x1cOPERATOR_FLAG_WITHOUT_TENSOR\x10\x04\x12\x15\n\x11OPERATOR_FLAG_POS\x10\x18')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -41,8 +41,8 @@ _ENUMVERSION = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1554,
-  serialized_end=1609,
+  serialized_start=1573,
+  serialized_end=1628,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMVERSION)
 
@@ -58,7 +58,7 @@ _ENUMLOWLEVELIO = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='IO_HEADER_SIZE_MSK', index=1, number=127,
+      name='IO_HEADER_SIZE_MSK', index=1, number=32767,
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
@@ -70,14 +70,22 @@ _ENUMLOWLEVELIO = _descriptor.EnumDescriptor(
       options=None,
       type=None),
     _descriptor.EnumValueDescriptor(
-      name='IO_OUT_SYNC', index=4, number=170,
+      name='IO_IN_PACKET_SIZE_LARGE', index=4, number=4094,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='IO_OUT_PACKET_SIZE_LARGE', index=5, number=4094,
+      options=None,
+      type=None),
+    _descriptor.EnumValueDescriptor(
+      name='IO_OUT_SYNC', index=6, number=170,
       options=None,
       type=None),
   ],
   containing_type=None,
   options=_descriptor._ParseOptions(descriptor_pb2.EnumOptions(), _b('\020\001')),
-  serialized_start=1612,
-  serialized_end=1746,
+  serialized_start=1631,
+  serialized_end=1828,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMLOWLEVELIO)
 
@@ -115,8 +123,8 @@ _ENUMAIRUNTIME = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1748,
-  serialized_end=1869,
+  serialized_start=1830,
+  serialized_end=1951,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMAIRUNTIME)
 
@@ -150,8 +158,8 @@ _ENUMAIAPIRUNTIME = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1871,
-  serialized_end=1990,
+  serialized_start=1953,
+  serialized_end=2072,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMAIAPIRUNTIME)
 
@@ -193,8 +201,8 @@ _ENUMTOOLS = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=1992,
-  serialized_end=2097,
+  serialized_start=2074,
+  serialized_end=2179,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMTOOLS)
 
@@ -232,8 +240,8 @@ _ENUMCAPABILITY = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2099,
-  serialized_end=2223,
+  serialized_start=2181,
+  serialized_end=2305,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMCAPABILITY)
 
@@ -291,8 +299,8 @@ _ENUMCMD = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2226,
-  serialized_end=2463,
+  serialized_start=2308,
+  serialized_end=2545,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMCMD)
 
@@ -326,8 +334,8 @@ _ENUMSTATE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2465,
-  serialized_end=2546,
+  serialized_start=2547,
+  serialized_end=2628,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMSTATE)
 
@@ -381,8 +389,8 @@ _ENUMERROR = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2549,
-  serialized_end=2760,
+  serialized_start=2631,
+  serialized_end=2842,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMERROR)
 
@@ -412,8 +420,8 @@ _ENUMCOUNTERFORMAT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2762,
-  serialized_end=2868,
+  serialized_start=2844,
+  serialized_end=2950,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMCOUNTERFORMAT)
 
@@ -435,8 +443,8 @@ _ENUMCOUNTERTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2870,
-  serialized_end=2934,
+  serialized_start=2952,
+  serialized_end=3016,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMCOUNTERTYPE)
 
@@ -486,8 +494,8 @@ _ENUMRUNPARAM = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=2937,
-  serialized_end=3190,
+  serialized_start=3019,
+  serialized_end=3272,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMRUNPARAM)
 
@@ -541,8 +549,8 @@ _ENUMSHAPEFMT = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=3193,
-  serialized_end=3447,
+  serialized_start=3275,
+  serialized_end=3529,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMSHAPEFMT)
 
@@ -576,8 +584,8 @@ _ENUMDATAFMTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=3450,
-  serialized_end=3590,
+  serialized_start=3532,
+  serialized_end=3672,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMDATAFMTTYPE)
 
@@ -623,8 +631,8 @@ _ENUMTENSORFLAG = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=3593,
-  serialized_end=3807,
+  serialized_start=3675,
+  serialized_end=3889,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMTENSORFLAG)
 
@@ -654,8 +662,8 @@ _ENUMDATATYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=3809,
-  serialized_end=3903,
+  serialized_start=3891,
+  serialized_end=3985,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMDATATYPE)
 
@@ -689,8 +697,8 @@ _ENUMOPERATORFLAG = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=3906,
-  serialized_end=4057,
+  serialized_start=3988,
+  serialized_end=4139,
 )
 _sym_db.RegisterEnumDescriptor(_ENUMOPERATORFLAG)
 
@@ -698,9 +706,11 @@ EnumOperatorFlag = enum_type_wrapper.EnumTypeWrapper(_ENUMOPERATORFLAG)
 P_VERSION_MAJOR = 3
 P_VERSION_MINOR = 1
 IO_HEADER_EOM_FLAG = 128
-IO_HEADER_SIZE_MSK = 127
+IO_HEADER_SIZE_MSK = 32767
 IO_IN_PACKET_SIZE = 32
 IO_OUT_PACKET_SIZE = 32
+IO_IN_PACKET_SIZE_LARGE = 4094
+IO_OUT_PACKET_SIZE_LARGE = 4094
 IO_OUT_SYNC = 170
 AI_RT_STM_AI = 1
 AI_RT_TFLM = 2
@@ -1342,8 +1352,15 @@ _SYSINFOMSG = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='extra', full_name='sysinfoMsg.extra', index=4,
-      number=5, type=13, cpp_type=3, label=3,
+      name='com_param', full_name='sysinfoMsg.com_param', index=4,
+      number=5, type=13, cpp_type=3, label=2,
+      has_default_value=False, default_value=0,
+      message_type=None, enum_type=None, containing_type=None,
+      is_extension=False, extension_scope=None,
+      options=None),
+    _descriptor.FieldDescriptor(
+      name='extra', full_name='sysinfoMsg.extra', index=5,
+      number=6, type=13, cpp_type=3, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -1361,7 +1378,7 @@ _SYSINFOMSG = _descriptor.Descriptor(
   oneofs=[
   ],
   serialized_start=1080,
-  serialized_end=1169,
+  serialized_end=1188,
 )
 
 
@@ -1398,8 +1415,8 @@ _ACKMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1171,
-  serialized_end=1221,
+  serialized_start=1190,
+  serialized_end=1240,
 )
 
 
@@ -1436,8 +1453,8 @@ _LOGMSG = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=1223,
-  serialized_end=1259,
+  serialized_start=1242,
+  serialized_end=1278,
 )
 
 
@@ -1533,8 +1550,8 @@ _RESPMSG = _descriptor.Descriptor(
       name='payload', full_name='respMsg.payload',
       index=0, containing_type=None, fields=[]),
   ],
-  serialized_start=1262,
-  serialized_end=1552,
+  serialized_start=1281,
+  serialized_end=1571,
 )
 
 _REQMSG.fields_by_name['cmd'].enum_type = _ENUMCMD

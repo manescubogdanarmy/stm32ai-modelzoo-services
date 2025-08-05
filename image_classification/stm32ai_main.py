@@ -36,7 +36,7 @@ from src.training import train
 from src.evaluation import evaluate
 from src.quantization import quantize
 from src.prediction import predict
-from deployment import deploy, deploy_mpu
+from src.deployment import deploy, deploy_mpu
 
 
 def chain_qd(cfg: DictConfig = None, quantization_ds: tf.data.Dataset = None, hardware_type: str = "MCU") -> None:

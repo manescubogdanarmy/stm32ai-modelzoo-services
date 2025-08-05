@@ -75,7 +75,7 @@ def _spatial_pyramid_pooling(inputs, pool_sizes=(5, 9, 13), activation="swish", 
     input_channels = inputs.shape[channel_axis]
     nn = _conv_dw_pw_block(inputs, input_channels // 2, kernel_size=1, activation=activation, name=name + "1_")
     pp = [layers.MaxPool2D(pool_size=ii, strides=1, padding="same")(nn) for ii in pool_sizes]
-    nn = tf.concat([nn, *pp], axis=channel_axis)
+    nn = layers.Concatenate(axis=channel_axis)([nn, *pp])
     nn = _conv_dw_pw_block(nn, input_channels, kernel_size=1, activation=activation, name=name + "2_")
     return nn
 
@@ -98,7 +98,7 @@ def _csp_stack(inputs, depth, out_channels=-1, expansion=0.5, use_shortcut=True,
         block_name = name + "block{}_".format(id + 1)
         deep = _csp_block(deep, 1, use_shortcut=use_shortcut, use_depthwise_conv=use_depthwise_conv, activation=activation, name=block_name)
 
-    out = tf.concat([deep, short], axis=channel_axis)
+    out = layers.Concatenate(axis=channel_axis)([deep, short])
     out = _conv_dw_pw_block(out, out_channels, kernel_size=1, activation=activation, name=name + "output_")
     return out
 
@@ -146,7 +146,7 @@ def _upsample_merge(inputs, csp_depth, use_depthwise_conv=False, activation="swi
     fpn_out = _conv_dw_pw_block(inputs[0], target_channel, activation=activation, name=name + "fpn_")
     size = tf.shape(inputs[-1])[1:-1]
     inputs[0] = tf.image.resize(fpn_out, size, method="nearest")
-    nn = tf.concat(inputs, axis=channel_axis)
+    nn = layers.Concatenate(axis=channel_axis)(inputs)
     nn = _csp_stack(nn, csp_depth, target_channel, 0.5, False, use_depthwise_conv, activation=activation, name=name)
     return fpn_out, nn
 
@@ -154,7 +154,7 @@ def _downsample_merge(inputs, csp_depth, use_depthwise_conv=False, activation="s
     # print(f">>>> _downsample_merge inputs: {[ii.shape for ii in inputs] = }")
     channel_axis = -1
     inputs[0] = _conv_dw_pw_block(inputs[0], inputs[-1].shape[channel_axis], 3, 2, use_depthwise_conv, activation=activation, name=name + "down_")
-    nn = tf.concat(inputs, axis=channel_axis)
+    nn = layers.Concatenate(axis=channel_axis)(inputs)
     nn = _csp_stack(nn, csp_depth, nn.shape[channel_axis], 0.5, False, use_depthwise_conv, activation=activation, name=name)
     return nn
 
@@ -213,7 +213,7 @@ def _yolox_head_single(inputs, out_channels, num_classes=80, regression_len=4, n
     # obj_preds
     obj_out = layers.Conv2D(1 * num_anchors, kernel_size=1, use_bias=False, name=name + "object_out")(reg_nn)
 
-    return tf.concat([reg_out,obj_out,cls_out], axis=-1)
+    return layers.Concatenate(axis=-1)([reg_out,obj_out,cls_out])
     
 
 def _yolox_head(inputs, width_mul=1.0, num_classes=80, regression_len=4, num_anchors=1, use_depthwise_conv=False, use_object_scores=True, activation="swish", name=""):

@@ -30,7 +30,11 @@ class NeuralNetwork:
         self._normalize = normalize
 
         # Initialize NN model
-        self.stai_mpu_model = stai_mpu_network(model_path=self._model_file)
+        # Depending on model extension enable or not hardware acceleration
+        if (".nb" in self._model_file):
+            self.stai_mpu_model = stai_mpu_network(model_path=self._model_file, use_hw_acceleration=True)
+        else :
+            self.stai_mpu_model = stai_mpu_network(model_path=self._model_file, use_hw_acceleration=False)
 
         # Read input tensor information
         self.num_inputs = self.stai_mpu_model.get_num_inputs()
@@ -173,6 +177,12 @@ class NeuralNetwork:
 
 
     def keypoints_and_edges_for_display(self, final_detections):
+        """
+        Movenet post-processing comes from MoveNet: Ultra fast and accurate pose detection model
+        License Apache-2.0 : https://github.com/tensorflow/docs/blob/master/site/en/hub/tutorials/movenet.ipynb
+        with Copyright 2021 The TensorFlow Hub Authors. All Rights Reserved.
+        """
+
         """Returns high confidence keypoints and edges for visualization.
         Args:
         keypoints_with_scores: A numpy array with shape [1, 1, 17, 3] representing
@@ -186,9 +196,6 @@ class NeuralNetwork:
         * the coordinates of all keypoints of all detected entities;
         * the coordinates of all skeleton edges of all detected entities;
         * the colors in which the edges should be plotted.
-
-        Movenet post-processing comes from MoveNet: Ultra fast and accurate pose detection model
-        License Apache-2.0 : https://www.tensorflow.org/hub/tutorials/movenet
         """
         keypoint_threshold = 0.4
         keypoints_all = []

@@ -9,6 +9,8 @@ This is a standalone project that can be used as-is to deploy the application on
 
 This top readme gives an overview of the app. Additional documentation is available in the [Doc](./Doc/) folder.
 
+__Note__: Please note that the NUCLEO-N657X0-Q board does not support any model for this use case at the moment.
+
 ## __Directory contents__
 
 This repository is structured as follows:
@@ -103,7 +105,7 @@ STM32N6570-DK board with MB1854B IMX335.
 
 - [STM32CubeIDE](https://www.st.com/content/st_com/en/products/development-tools/software-development-tools/stm32-software-development-tools/stm32-ides/stm32cubeide.html) (__STM32CubeIDE 1.17.0__)
 - [STM32CubeProgrammer](https://www.st.com/en/development-tools/stm32cubeprog.html) (__v2.18.0__)
-- [STEdgeAI](https://www.st.com/en/development-tools/stedgeai-core.html) (__v2.1.0__)
+- [STEdgeAI](https://www.st.com/en/development-tools/stedgeai-core.html) (__v2.2.0__)
 
 ## Boot modes
 
@@ -135,6 +137,7 @@ Three binaries must be programmed in the board external flash using the followin
   6. Power cycle the board
 
 __Note__: The `Binary/STM32N6570-DK_GettingStarted_InstanceSegmentation.hex` firmware is built for MB1939 STM32N6570-DK REV C02 with any of the listed required camera module.
+
 __Note__: The `Binary/NUCLEO-N657X0-Q_GettingStarted_InstanceSegmentation.hex` firmware is built for MB1940 NUCLEO-N657X0-Q REV C01 with USB/UVC host display and any of the listed required camera module.
 
 ### How to program hex files using STM32CubeProgrammer UI
@@ -181,7 +184,9 @@ Before building and running the application you have to program `<board_name>_ne
 This step only has to be done once unless you change AI model.
 See [Quickstart using prebuilt binaries](#quickstart-using-prebuilt-binaries) for details.
 
-More information about boot modes is available at [Boot Overview](Doc/Boot-Overview.md)
+More information about boot modes is available at [Boot Overview](Doc/Boot-Overview.md).
+
+__Note__: To select the NUCLEO-N657X0-Q display interface, if you are using CubeIDE, select the appropriate build configuration. If you are using the Makefile, provide either SCR_LIB_SCREEN_ITF=UVCL or SCR_LIB_SCREEN_ITF=SPI as an option to the make command (the default is UVCL).
 
 ### Download and compile Yolo v8 seg
 
@@ -189,7 +194,7 @@ Go to the [ST Ultralytics fork](https://github.com/stm32-hotspot/ultralytics/tre
 
 ```bash
 cd Model
-generate-n6-model.sh
+./generate-n6-model_<board_name>.sh
 cd ..
 ```
 

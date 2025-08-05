@@ -179,6 +179,7 @@ def train(cfg: DictConfig):
     # to avoid warnings when reloading it)
     base_model = tf.keras.models.clone_model(model)
     base_model.compile()
+    base_model.set_weights(model.get_weights()) 
     base_model_path = os.path.join(saved_models_dir, "base_model.h5")
     base_model.save(base_model_path)
     

@@ -23,7 +23,8 @@
 #include "stm32_lcd.h"
 #include "app_fuseprogramming.h"
 #include "stm32_lcd_ex.h"
-#include "ll_aton_runtime.h"
+#include "ll_aton_rt_user_api.h"
+LL_ATON_DECLARE_NAMED_NN_INSTANCE_AND_INTERFACE(Default);
 #include "app_camerapipeline.h"
 #include "main.h"
 #include <stdio.h>
@@ -124,6 +125,7 @@ static void set_clk_sleep_mode(void);
 static void IAC_Config(void);
 static void Display_WelcomeScreen(void);
 static void Hardware_init(void);
+static void Run_Inference(void);
 static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *number_output, int32_t nn_out_len[]);
 
 
@@ -143,7 +145,6 @@ int main(void)
   int number_output = 0;
   float32_t *nn_out[MAX_NUMBER_OUTPUT] = {0};
   int32_t nn_out_len[MAX_NUMBER_OUTPUT] = {0};
-  LL_ATON_DECLARE_NAMED_NN_INSTANCE_AND_INTERFACE(Default);
   NeuralNetwork_init(&nn_in_len, nn_out, &number_output, nn_out_len);
 
   /*** Post Processing Init ***************************************************/
@@ -192,7 +193,7 @@ int main(void)
 
     ts[0] = HAL_GetTick();
     /* run ATON inference */
-    LL_ATON_RT_Main(&NN_Instance_Default);
+    Run_Inference();
     ts[1] = HAL_GetTick();
 
     Network_Postprocess();
@@ -253,10 +254,27 @@ static void Hardware_init(void)
 
 }
 
+static void Run_Inference(void) {
+  LL_ATON_RT_RetValues_t ll_aton_rt_ret;
+
+  do
+  {
+    ll_aton_rt_ret = LL_ATON_RT_RunEpochBlock(&NN_Instance_Default);
+
+    /* Wait for next event */
+    if (ll_aton_rt_ret == LL_ATON_RT_WFE)
+    {
+      LL_ATON_OSAL_WFE();
+    }
+  } while (ll_aton_rt_ret != LL_ATON_RT_DONE);
+
+  LL_ATON_RT_Reset_Network(&NN_Instance_Default);
+}
+
 static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *number_output, int32_t nn_out_len[])
 {
-  const LL_Buffer_InfoTypeDef *nn_in_info = LL_ATON_Input_Buffers_Info_Default();
-  const LL_Buffer_InfoTypeDef *nn_out_info = LL_ATON_Output_Buffers_Info_Default();
+  const LL_Buffer_InfoTypeDef *nn_in_info = LL_ATON_Input_Buffers_Info(&NN_Instance_Default);
+  const LL_Buffer_InfoTypeDef *nn_out_info = LL_ATON_Output_Buffers_Info(&NN_Instance_Default);
 
   // Get the input buffer address
   nn_in = (uint8_t *) LL_Buffer_addr_start(&nn_in_info[0]);
@@ -276,6 +294,9 @@ static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *
   }
 
   *nnin_length = LL_Buffer_len(&nn_in_info[0]);
+
+  LL_ATON_RT_RuntimeInit();
+  LL_ATON_RT_Init_Network(&NN_Instance_Default);
 }
 
 static void NPURam_enable(void)

@@ -2,8 +2,8 @@
 
 Welcome to STM32 model zoo services!
 
-The STM32 AI model zoo is a set of services and scripts used to ease end to end AI models integration on ST devices. This can be used in conjunction of the [STM32 model zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo/) which contains a collection of reference machine learning models optimized to run on STM32 microcontrollers.
-Available on GitHub, this is a valuable resource for anyone looking to add AI capabilities to their STM32-based projects.
+The STM32 AI model zoo is a set of services and scripts used to ease end to end AI models integration on ST devices. This can be used in conjunction with the [STM32 model zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo/) which contains a collection of reference machine learning models optimized to run on STM32 microcontrollers.
+Available on GitHub, it is a valuable resource for anyone looking to add AI capabilities to their STM32-based projects.
 
 - Scripts to easily retrain or fine-tune any model from user datasets (BYOD and BYOM)
 - A set of services and chained services to quantize, benchmark, predict and evaluate any model (BYOM)
@@ -12,18 +12,27 @@ Available on GitHub, this is a valuable resource for anyone looking to add AI ca
 These models can be useful for quick deployment if you are interested in the categories they were trained on. We also provide training scripts to do transfer learning or to train your own model from scratch on your custom dataset.
 
 The performances on reference STM32 MCU and MPU are provided for float and quantized models.
-
 This project is organized by application, for each application you will have a step by step guide that will indicate how to train and deploy the models.
 
 ## What's new in releases :
-<details open><summary><b>3.1:</b></summary>
 
-* Support for `STEdgeAI Core v2.1.0` (STM32Cube.AI v10.1.0).
-* Application code for STM32N6 board is now directly available in the STM32 model zoo repository; eliminating the need for separate downloads. 
-* Support of `On device evaluation` and `On device prediction` on the `STM32N6570-DK` boards integrated in evaluation and prediction services.
+<details open><summary><b>3.2:</b></summary>
+
+* Support of **STEdgeAI Core v2.2.0** (STM32Cube.AI v10.2.0).
+* Support of **X-Linux-AI v6.1.0** support for MPU.
+* New use cases added: **StyleTransfer** and **FastDepth**.
+* New models added: **Face Detection**, available in the Object Detection use case, and **Face Landmarks**, available in the Pose Estimation use case.
+* Architecture and codebase clean-up.
+</details>
+
+<details><summary><b>3.1:</b></summary>
+
+* Support for **STEdgeAI Core v2.1.0** (STM32Cube.AI v10.1.0).
+* Application code for STM32N6 board is now directly available in the STM32 model zoo repository; eliminating the need for separate downloads.
+* Support of **On device evaluation** and **On device prediction** on the **STM32N6570-DK** boards integrated in evaluation and prediction services.
 * More models supported : Yolov11, LSTM model added in the Speech Enhancement, ST Yolo X variants.
 * ClearML support.
-* A few bug fixes and improvements like proper imports, OD metrics alignments. 
+* A few bug fixes and improvements like proper imports, OD metrics alignments.
 
 
 </details>
@@ -31,12 +40,12 @@ This project is organized by application, for each application you will have a s
 
 * Full support of the new [STM32N6570-DK](https://www.st.com/en/evaluation-tools/stm32n6570-dk) board.
 * Included additional models compatible with the `STM32N6`.
-* Included support for `STEdgeAI Core v2.0.0` (STM32Cube.AI v10.0.0).
+* Included support for **STEdgeAI Core v2.0.0** (STM32Cube.AI v10.0.0).
 * Split of model zoo and services into two GitHub repositories
 * Integrated support for `ONNX model` quantization and evaluation from h5 models.
-* Expanded use case support to include `Instance Segmentation` and `Speech Enhancement`.
+* Expanded use case support to include **Instance Segmentation** and **Speech Enhancement**.
 * Added `Pytorch` support through the speech enhancement Use Case.
-* Support of `On device evaluation and prediction` on the `STM32N6570-DK` boards.
+* Support of **On device evaluation and prediction** on the **STM32N6570-DK** boards.
 * Model Zoo hosted on <a href="#Hugging Face">Hugging Face</a>
 
 </details>
@@ -45,24 +54,24 @@ This project is organized by application, for each application you will have a s
 * Included additional models compatible with the [STM32MP257F-EV1](https://www.st.com/en/evaluation-tools/stm32mp257f-ev1) board.
 * Added support for per-tensor quantization.
 * Integrated support for `ONNX model` quantization and evaluation.
-* Included support for `STEdgeAI` (STM32Cube.AI v10.0.0 and subsequent versions).
-* Expanded use case support to include `Pose Estimation` and `Semantic Segmentation`.
+* Included support for **STEdgeAI** (STM32Cube.AI v10.0.0 and subsequent versions).
+* Expanded use case support to include **Pose Estimation** and **Semantic Segmentation**.
 * Standardized logging information for a unified experience.
 </details>
 <details><summary><b>2.0:</b></summary>
 
-* An aligned and `uniform architecture` for all the use case
+* An aligned and **uniform architecture** for all the use case
 * A modular design to run different operation modes (training, benchmarking, evaluation, deployment, quantization) independently or with an option of chaining multiple modes in a single launch.
 * A simple and `single entry point` to the code : a .yaml configuration file to configure all the needed services.
-* Support of the `Bring Your Own Model (BYOM)` feature to allow the user (re-)training his own model. Example is provided [here](./image_classification/src/training/README.md#51-training-your-own-model), chapter 5.1.
-* Support of the `Bring Your Own Data (BYOD)` feature to allow the user finetuning some pretrained models with his own datasets. Example is provided [here](./image_classification/src/training/README.md#23-dataset-specification), chapter 2.3.
+* Support of the `Bring Your Own Model (BYOM)` feature to allow the user (re-)training his own model. Example is provided [here](./image_classification/docs/README_TRAINING.md#51-training-your-own-model), chapter 5.1.
+* Support of the `Bring Your Own Data (BYOD)` feature to allow the user finetuning some pretrained models with his own datasets. Example is provided [here](./image_classification/docs/README_TRAINING.md#23-dataset-specification), chapter 2.3.
 </details>
 
 <div align="center" style="margin-top: 80px; padding: 20px 0;">
     <p align="center">
         <a href="https://www.python.org/downloads/" target="_blank"><img src="https://img.shields.io/badge/python-3.10-blue" /></a>
         <a href="https://www.tensorflow.org/install/pip" target="_blank"><img src="https://img.shields.io/badge/TensorFlow-2.8.3-FF6F00?style=flat&logo=tensorflow&logoColor=#FF6F00&link=https://www.tensorflow.org/install/pip"/></a>
-        <a href="https://stedgeai-dc.st.com/home"><img src="https://img.shields.io/badge/STM32Cube.AI-Developer%20Cloud-FFD700?style=flat&logo=stmicroelectronics&logoColor=white"/></a>  
+        <a href="https://stedgeai-dc.st.com/home"><img src="https://img.shields.io/badge/STM32Cube.AI-Developer%20Cloud-FFD700?style=flat&logo=stmicroelectronics&logoColor=white"/></a>
     </p>
 </div>
 
@@ -72,12 +81,14 @@ The ST model zoo provides a collection of independent `services` and pre-built `
 **All trained models in the [STM32 model zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo/) are provided with their configuration .yaml file used to generate them. This is a very good baseline to start with!**
 
 >[!TIP]
-> All services are available for following use cases with quick and easy examples that are provided and can be executed for a fast ramp up (click on use cases links below). 
+> All services are available for following use cases with quick and easy examples that are provided and can be executed for a fast ramp up (click on use cases links below).
 * <a href="#IC">Image Classification</a>
 * <a href="#OD">Object Detection</a>
 * <a href="#PE">Pose Estimation</a>
 * <a href="#SemSeg">Semantic Segmentation</a>
 * <a href="#InstSeg">Instance Segmentation</a>
+* <a href="#DE">Depth Estimation</a>
+* <a href="#NST">Neural Style Transfer</a>
 * <a href="#AED">Audio Event Detection</a>
 * <a href="#SE">Speech Enhancement</a>
 * <a href="#HAR">Human Activity Recognition</a>
@@ -88,7 +99,7 @@ Image classification is used to classify the content of an image within a predef
 
 <div align="center" style="width:100%; margin: auto;">
 
-![plot](./image_classification/deployment/doc/img/output_application.JPG)
+![plot](./image_classification/docs/img/output_application.JPG)
 </div>
 
 <details open><summary><b>Image classification (IC) models</b></summary>
@@ -96,8 +107,8 @@ Image classification is used to classify the content of an image within a predef
 | Models             | Input Resolutions | Supported Services    | Suitable Targets for deployment |
 |--------------------|------------------|-----------------------|-------------------|
 | [MobileNet v1 0.25](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv1/README.md)   | 96x96x1<br> 96x96x3<br> 224x224x3     | Full IC Services      | [STM32H747I-DISCO](application_code/image_classification/STM32H7/Application/STM32H747I-DISCO) with B-CAMS-OMV camera daughter board<br> [NUCLEO-H743ZI2](application_code/image_classification/STM32H7/Application/NUCLEO-H743ZI2) with B-CAMS-OMV camera daughter board<br>   |
-| [MobileNet v1 0.5](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv1/README.md)   | 224x224x3     | Full IC Services      | [STM32H747I-DISCO](application_code/image_classification/STM32H7/Application/STM32H747I-DISCO) with B-CAMS-OMV camera daughter board<br> [NUCLEO-H743ZI2](application_code/image_classification/STM32H7/Application/NUCLEO-H743ZI2) with B-CAMS-OMV camera daughter board<br>   | 
-| [MobileNet v1 1.0](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv1/README.md)   | 224x224x3     | Full IC Services      | [STM32MP257F-EV1](./application_code/image_classification/STM32MP-LINUX/STM32MP2/README.md)<br> [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>  | 
+| [MobileNet v1 0.5](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv1/README.md)   | 224x224x3     | Full IC Services      | [STM32H747I-DISCO](application_code/image_classification/STM32H7/Application/STM32H747I-DISCO) with B-CAMS-OMV camera daughter board<br> [NUCLEO-H743ZI2](application_code/image_classification/STM32H7/Application/NUCLEO-H743ZI2) with B-CAMS-OMV camera daughter board<br>   |
+| [MobileNet v1 1.0](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv1/README.md)   | 224x224x3     | Full IC Services      | [STM32MP257F-EV1](./application_code/image_classification/STM32MP-LINUX/STM32MP2/README.md)<br> [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>  |
 | [MobileNet v2 0.35](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv2/README.md)   | 128x128x3<br>  224x224x3     | Full IC Services      | [STM32H747I-DISCO](application_code/image_classification/STM32H7/Application/STM32H747I-DISCO) with B-CAMS-OMV camera daughter board<br> [NUCLEO-H743ZI2](application_code/image_classification/STM32H7/Application/NUCLEO-H743ZI2) with B-CAMS-OMV camera daughter board<br>   |
 | [MobileNet v2 1.0](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv2/README.md)   |  224x224x3     | Full IC Services      |  [STM32MP257F-EV1](./application_code/image_classification/STM32MP-LINUX/STM32MP2/README.md)<br> [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>  |
 | [MobileNet v2 1.4](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/image_classification/mobilenetv2/README.md)   |  224x224x3     | Full IC Services      |  [STM32MP257F-EV1](./application_code/image_classification/STM32MP-LINUX/STM32MP2/README.md)<br> [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>  |
@@ -119,24 +130,24 @@ Selecting a model for a specific task or a specific device is not always an easy
 
 <div align="center" style="width:100%; margin: auto;">
 
-![plot](./image_classification/deployment/doc/img/ic_food101_bubble.JPG)
+![plot](./image_classification/docs/img/ic_food101_bubble.JPG)
 </div>
 
 Please find below some tutorials for a quick ramp up!
-* [How can I define and train my own model?](./image_classification/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How can I fine tune a pretrained model on my own dataset?](./image_classification/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](./image_classification/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./image_classification/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I evaluate my model on STM32N6 target?](./image_classification/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How can I define and train my own model?](./image_classification/docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How can I fine tune a pretrained model on my own dataset?](./image_classification/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./image_classification/docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./image_classification/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I evaluate my model on STM32N6 target?](./image_classification/docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Image Classification top readme **[here](./image_classification/README.md)**
 
 ## <a id="OD">Object Detection</a>
-Object detection is used to detect, locate and estimate the occurrences probability of predefined objects from input images.  
+Object detection is used to detect, locate and estimate the occurrences probability of predefined objects from input images.
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./object_detection/deployment/doc/img/output_application.JPG)
+![plot](./object_detection/docs/img/output_application.JPG)
 </div>
 
 <details open><summary><b>Object Detection (OD) Models</b></summary>
@@ -150,7 +161,8 @@ Object detection is used to detect, locate and estimate the occurrences probabil
 | [Tiny Yolo v2](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/object_detection/tiny_yolo_v2/README.md)   |  224x224x3<br> 416x416x3<br>  | Full OD Services      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
 | [ST Yolo X](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/object_detection/st_yolo_x/README.md)   |  256x256x3<br> 320x320x3<br> 416x416x3<br>  480x480x3<br> | Full OD Services      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
 | [Yolo v8](https://github.com/stm32-hotspot/ultralytics/tree/main/examples/YOLOv8-STEdgeAI/stedgeai_models/object_detection) <br> Yolo v5u  |  192x192x3<br> 256x256x3<br> 320x320x3<br> 416x416x3<br>  | Evaluation / Benchmarking / Prediction / Deployment    | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
-| Yolo v11  |  192x192x3<br> 256x256x3<br> 320x320x3<br> 416x416x3<br>  | Evaluation / Benchmarking / Prediction    | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
+| [Yolo v11](https://github.com/stm32-hotspot/ultralytics/tree/main/examples/YOLOv8-STEdgeAI/stedgeai_models/object_detection)  |  256x256x3<br> | Evaluation / Benchmarking / Prediction / Deployment  | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
+| [Blazeface front](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/object_detection/face_detect_front/README.md)  |  128x128x3<br>   | Benchmarking / Prediction / Deployment   | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>     |
 
 [Full OD Services](object_detection/README.md) : training, evaluation, quantization, benchmarking, prediction, deployment
 
@@ -159,26 +171,26 @@ Relying on metrics like the inference time and the mean Average Precision (mAP) 
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./object_detection/deployment/doc/img/od_coco_2017_person_bubble.JPG)
+![plot](./object_detection/docs/img/od_coco_2017_person_bubble.JPG)
 </div>
 
 Please find below some tutorials for a quick ramp up!
-* [How can I use my own dataset?](./object_detection/deployment/doc/tuto/how_to_use_my_own_object_detection_dataset.md)
-* [How can I fine tune a pretrained model on my own dataset?](./object_detection/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](./object_detection/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./object_detection/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I quantize, evaluate and deploy an Ultralytics Yolov8 model?](./object_detection/deployment/doc/tuto/How_to_deploy_yolov8_yolov5_object_detection.md)
-* [How can I evaluate my model on STM32N6 target?](./object_detection/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How can I use my own dataset?](./object_detection/docs/tuto/how_to_use_my_own_object_detection_dataset.md)
+* [How can I fine tune a pretrained model on my own dataset?](./object_detection/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./object_detection/docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./object_detection/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I quantize, evaluate and deploy an Ultralytics Yolov8 model?](./object_detection/docs/tuto/How_to_deploy_yolov8_yolov5_object_detection.md)
+* [How can I evaluate my model on STM32N6 target?](./object_detection/docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Object Detection top readme **[here](./object_detection/README.md)**
 
 
 ## <a id="PE">Pose Estimation</a>
-Pose estimation allows to detect key points on some specific objects (people, hand, face, ...). It can be single pose where key points can be extracted from a single object, or multi pose where location of key points are estimated on all detected objects from the input images. 
+Pose estimation allows to detect key points on some specific objects (people, hand, face, ...). It can be single pose where key points can be extracted from a single object, or multi pose where location of key points are estimated on all detected objects from the input images.
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./pose_estimation/deployment/doc/img/output_mpu_application.JPG)
+![plot](./pose_estimation/docs/img/output_mpu_application.JPG)
 </div>
 
 <details open><summary><b>Pose Estimation (PE) Models</b></summary>
@@ -188,6 +200,8 @@ Pose estimation allows to detect key points on some specific objects (people, ha
 | [Yolo v8n pose](https://github.com/stm32-hotspot/ultralytics/tree/master/examples/YOLOv8-STEdgeAI/stedgeai_models/pose_estimation)   |  192x192x3<br> 256x256x3<br> 320x320x3<br>  | Evaluation / Benchmarking / Prediction / Deployment      | [STM32MP257F-EV1](./application_code/pose_estimation/STM32MP-LINUX/STM32MP2/README.md) <br> [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br> |
 | [MoveNet 17 kps](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/pose_estimation/movenet/README.md)   |  192x192x3<br> 224x224x3<br> 256x256x3<br>   | Evaluation / Quantization / Benchmarking / Prediction      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>|
 | [ST MoveNet 13 kps](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/pose_estimation/movenet/README.md)   |  192x192x3<br>   | Full PE Services      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br>|
+| [Yolo 11n pose](https://github.com/stm32-hotspot/ultralytics/tree/master/examples/YOLOv8-STEdgeAI/stedgeai_models/pose_estimation)   |  256x256x3<br>  | Evaluation / Benchmarking / Prediction / Deployment      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br> |
+| [Face landmarks](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/pose_estimation/head_landmarks)  |  192x192x3<br>  | Benchmarking / Prediction      | [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html)<br> |
 
 
 [Full PE Services](pose_estimation/README.md) : training, evaluation, quantization, benchmarking, prediction, deployment
@@ -196,17 +210,17 @@ Various metrics can be used to estimate quality of a single or multiple pose est
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./pose_estimation/deployment/doc/img/spe_coco_2017_bubble.JPG)
+![plot](./pose_estimation/docs/img/spe_coco_2017_bubble.JPG)
 </div>
 
 Please find below some tutorials for a quick ramp up!
-* [How can I use my own dataset?](./pose_estimation/deployment/doc/tuto/how_to_use_my_own_dataset.md)
-* [How to define and train my own model?](./pose_estimation/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How can I fine tune a pretrained model on my own dataset?](./pose_estimation/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](./pose_estimation/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./pose_estimation/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I deploy an Ultralytics Yolov8 pose estimation model?](./pose_estimation/deployment/doc/tuto/How_to_deploy_yolov8_pose_estimation.md)
-* [How can I evaluate my model on STM32N6 target?](./pose_estimation/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How can I use my own dataset?](./pose_estimation/docs/tuto/how_to_use_my_own_dataset.md)
+* [How to define and train my own model?](./pose_estimation/docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How can I fine tune a pretrained model on my own dataset?](./pose_estimation/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./pose_estimation/docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./pose_estimation/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I deploy an Ultralytics Yolov8 pose estimation model?](./pose_estimation/docs/tuto/How_to_deploy_yolov8_pose_estimation.md)
+* [How can I evaluate my model on STM32N6 target?](./pose_estimation/docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Pose Estimation top readme **[here](./pose_estimation/README.md)**
 
@@ -215,7 +229,7 @@ Semantic segmentation is an algorithm that associates a label to every pixel in 
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./semantic_segmentation/deployment/doc/img/output_mpu_application.JPG)
+![plot](./semantic_segmentation/docs/img/output_mpu_application.JPG)
 </div>
 
 <details open><summary><b>Semantic Segmentation (SemSeg) Models</b></summary>
@@ -232,25 +246,25 @@ Various metrics can be used to estimate quality of a segmentation UC. Metrics li
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./semantic_segmentation/deployment/doc/img/semseg_person_coco_2017_pascal_voc_2012_bubble.JPG)
+![plot](./semantic_segmentation/docs/img/semseg_person_coco_2017_pascal_voc_2012_bubble.JPG)
 </div>
 
 Please find below some tutorials for a quick ramp up!
-* [How to define and train my own model?](./semantic_segmentation/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How can I fine tune a pretrained model on my own dataset?](./semantic_segmentation/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](./semantic_segmentation/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./semantic_segmentation/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I evaluate my model on STM32N6 target?](./semantic_segmentation/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How to define and train my own model?](./semantic_segmentation/docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How can I fine tune a pretrained model on my own dataset?](./semantic_segmentation/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./semantic_segmentation/docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./semantic_segmentation/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I evaluate my model on STM32N6 target?](./semantic_segmentation/docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Semantic Segmentation top readme **[here](./semantic_segmentation/README.md)**
 
 
 ## <a id="InstSeg">Instance Segmentation</a>
-Instance segmentation is an algorithm that associates a label to every pixel in an image. It also output bounding boxes on detected classes objects. It is used to recognize a collection of pixels that form distinct categories and instances of each categories. It differentiates instances of a same category which is the main difference between instance and semantic segmentation.
+Instance segmentation is an algorithm that associates a label to every pixel in an image. It also output bounding boxes on detected class objects. It is used to recognize a collection of pixels that form distinct categories and instances of each category. It differentiates instances of a same category which is the main difference between instance and semantic segmentation.
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./instance_segmentation/deployment/doc/img/output_application_instseg.JPG)
+![plot](./instance_segmentation/docs/img/output_application_instseg.JPG)
 </div>
 
 <details open><summary><b>Instance Segmentation (InstSeg) Models</b></summary>
@@ -258,20 +272,62 @@ Instance segmentation is an algorithm that associates a label to every pixel in 
 | Models             | Input Resolutions | Supported Services    | Targets for deployment |
 |--------------------|------------------|-----------------------|-------------------|
 | [yolov8n_seg](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/instance_segmentation/yolov8n_seg/README.md)   | 256x256x3<br> 320x320x3<br> | Prediction, Benchmark, Deployment     |  [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html) <br> |
+| [yolo11n_seg](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/instance_segmentation/yolo11n_seg/README.md)   | 256x256x3<br> 320x320x3<br> | Prediction, Benchmark, Deployment     |  [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html) <br> |
+
 
 </details>
 
 Please find below some tutorials for a quick ramp up!
-* [How can I deploy an Ultralytics Yolov8 instance segmentation model?](./instance_segmentation/deployment/doc/tuto/How_to_deploy_yolov8_instance_segmentation.md)
+* [How can I deploy an Ultralytics Yolov8 instance segmentation model?](./instance_segmentation/docs/tuto/How_to_deploy_yolov8_instance_segmentation.md)
 
 Instance Segmentation top readme **[here](./instance_segmentation/README.md)**
+
+## <a id="DE">Depth Estimation</a>
+
+</div>
+
+This allows to predict the distance to objects from an image as a pixel-wise depth map.
+
+
+<div align="center" style="width:80%; margin: auto;">
+
+![plot](./depth_estimation/docs/img/output_application_de.JPG)
+</div>
+<details open><summary><b>Depth Estimation (DE) Models</b></summary>
+
+| Models             | Input Resolutions | Supported Services    | Targets for deployment |
+|--------------------|------------------|-----------------------|-------------------|
+| [fast_depth](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/depth_estimation/fast_depth/README.md)   | 224x224x3<br>  256x256x3<br>   320x320x3<br>  | benchmarking / prediction  |  [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html) |
+
+
+</details>
+
+Depth Estimation top readme **[here](./depth_estimation/README.md)**.
+
+## <a id="NST">Neural Style Transfer</a>
+Neural Style Transfer is a deep learning technique that applies the artistic style of one image to the content of another image by optimizing a new image to simultaneously match the content features of the original and the style features of the reference image.
+
+<div align="center" style="width:80%; margin: auto;">
+
+![plot](./neural_style_transfer/docs/img/output_application_nst.JPG)
+</div>
+
+<details open><summary><b>Neural style transfer (NST) Models</b></summary>
+
+| Models             | Input Resolutions | Supported Services    | Targets for deployment |
+|--------------------|------------------|-----------------------|-------------------|
+| [Xinet_picasso_muse](https://github.com/STMicroelectronics/stm32ai-modelzoo/blob/master/neural_style_transfer/xinet_picasso_muse/README.md)   | 160x160x3<br> | Prediction, Benchmark     |  [STM32N6570-DK](https://www.st.com/en/development-tools/stm32n6-ai.html) <br> |
+
+</details>
+
+Neural style transfer top readme **[here](./neural_style_transfer/README.md)**
 
 ## <a id="AED">Audio Event Detection</a>
 This is used to detect a set of pre-defined audio events.
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./audio_event_detection/deployment/doc/img/output_application.JPG)
+![plot](./audio_event_detection/docs/img/output_application.JPG)
 </div>
 
 <details open><summary><b>Audio Event Detection (AED) Models</b></summary>
@@ -291,16 +347,16 @@ Various metrics can be used to estimate quality of an audio event detection UC. 
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./audio_event_detection/deployment/doc/img/aed_esc10_bubble.JPG)
+![plot](./audio_event_detection/docs/img/aed_esc10_bubble.JPG)
 </div>
 
 Please find below some tutorials for a quick ramp up!
-* [How to define and train my own model?](./audio_event_detection/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How to fine tune a model on my own dataset?](./audio_event_detection/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I evaluate my model before and after quantization?](./audio_event_detection/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./audio_event_detection/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I deploy my model?](./audio_event_detection/deployment/doc/tuto/how_to_deploy_a_model_on_a_target.md)
-* [How can I evaluate my model on STM32N6 target?](./audio_event_detection/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How to define and train my own model?](./audio_event_detection/docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How to fine tune a model on my own dataset?](./audio_event_detection/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I evaluate my model before and after quantization?](./audio_event_detection/docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./audio_event_detection/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I deploy my model?](./audio_event_detection/docs/tuto/how_to_deploy_a_model_on_a_target.md)
+* [How can I evaluate my model on STM32N6 target?](./audio_event_detection/docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Audio Event Detection top readme **[here](./audio_event_detection/README.md)**
 
@@ -310,7 +366,7 @@ Speech Enhancement is an algorithm that enhances audio perception in a noisy env
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./speech_enhancement/src/doc/img/output_application_se.JPG)
+![plot](./speech_enhancement/docs/img/output_application_se.JPG)
 </div>
 
 <details open><summary><b>Speech Enhancement (SE) Models</b></summary>
@@ -334,7 +390,7 @@ This allows to recognize various activities like walking, running, ...
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./human_activity_recognition/deployment/doc/img/output_application_har.JPG)
+![plot](./human_activity_recognition/docs/img/output_application_har.JPG)
 </div>
 
 <details open><summary><b>Human Activity Recognition (HAR) Models</b></summary>
@@ -348,10 +404,10 @@ This allows to recognize various activities like walking, running, ...
 </details>
 
 Please find below some tutorials for a quick ramp up!
-* [How to define and train my own model?](./human_activity_recognition/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How to fine tune a model on my own dataset?](./human_activity_recognition/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I quickly check the performance of my model using the dev cloud?](./human_activity_recognition/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I deploy my model?](./human_activity_recognition/deployment/doc/tuto/how_to_deploy_a_model_on_a_target.md)
+* [How to define and train my own model?](./human_activity_recognition/docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How to fine tune a model on my own dataset?](./human_activity_recognition/docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./human_activity_recognition/docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I deploy my model?](./human_activity_recognition/docs/tuto/how_to_deploy_a_model_on_a_target.md)
 
 Human Activity Recognition top readme **[here](./human_activity_recognition/README.md)**
 
@@ -360,7 +416,7 @@ This allows to recognize a set of hand postures using Time of Flight (ToF) senso
 
 <div align="center" style="width:80%; margin: auto;">
 
-![plot](./hand_posture/deployment/doc/img/output_application.JPG)
+![plot](./hand_posture/docs/img/output_application.JPG)
 </div>
 
 <details open><summary><b>Hand Posture Recognition (HPR) Models</b></summary>
@@ -404,7 +460,7 @@ You can also find our models on Hugging Face under the [STMicroelectronics Organ
 * [stm32ai-tao](https://github.com/STMicroelectronics/stm32ai-tao): this GitHub repository provides Python scripts and
   Jupyter notebooks to manage a complete life cycle of a model from training, to compression, optimization and
   benchmarking using **NVIDIA TAO Toolkit** and STM32Cube.AI Developer Cloud.
-* [stm32ai-nota](https://github.com/STMicroelectronics/stm32ai-nota): this GitHub repository contains Jupyter notebooks that demonstrate how to use **NetsPresso** to prune pre-trained deep learning models from the model zoo and fine-tune, quantize and benchmark them by using STM32Cube.AI Developer Cloud for your specific use case. 
+* [stm32ai-nota](https://github.com/STMicroelectronics/stm32ai-nota): this GitHub repository contains Jupyter notebooks that demonstrate how to use **NetsPresso** to prune pre-trained deep learning models from the model zoo and fine-tune, quantize and benchmark them by using STM32Cube.AI Developer Cloud for your specific use case.
 
 ## Before you start
 For more in depth guide on installing and setting up the model zoo and its requirement on your PC, specially in the
@@ -415,15 +471,15 @@ It is also important to note that that the application code for the STM32N6 shal
 
 
 * Create an account on myST and then sign in to [STM32Cube.AI Developer Cloud](https://stedgeai-dc.st.com/home) to be
-  able access the service.
+  able to access the service.
 * Or, install [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html) locally by following the
   instructions provided in
   the [user manual](https://www.st.com/resource/en/user_manual/um2526-getting-started-with-xcubeai-expansion-package-for-artificial-intelligence-ai-stmicroelectronics.pdf)
   in **section 2**, and get the path to `stm32ai` executable.
     * Alternatively, download latest version of [STM32Cube.AI](https://www.st.com/en/embedded-software/x-cube-ai.html)
       for your OS, extract the package and get the path to `stm32ai` executable.
-* If you don't have python already installed, you can download and install it
-  from [here](https://www.python.org/downloads/), a **Python Version == 3.10.x** is required to be able to run the the code 
+* If you don't have Python already installed, you can download and install it
+  from [here](https://www.python.org/downloads/), a **Python Version == 3.10.x** is required to be able to run the the code
 * (For Windows systems make sure to check the **Add python.exe to PATH** option during the installation process).
 * If using GPU make sure to install the GPU driver. For NVIDIA GPUs please refer
   to https://docs.nvidia.com/deeplearning/cudnn/install-guide/index.html to install CUDA and CUDNN. On Windows, it is
@@ -435,7 +491,7 @@ It is also important to note that that the application code for the STM32N6 shal
 git clone https://github.com/STMicroelectronics/stm32ai-modelzoo-services.git
 ```
 
-* Create a python virtual environment for the project:
+* Create a Python virtual environment for the project:
     ```
     cd stm32ai-modelzoo-services
     python -m venv st_zoo
@@ -458,7 +514,7 @@ git clone https://github.com/STMicroelectronics/stm32ai-modelzoo-services.git
     ```
     conda activate st_zoo
     ```
-  Install python 3.10:
+  Install Python 3.10:
     ```
     conda install -c conda-forge python=3.10
     ```
@@ -471,7 +527,7 @@ git clone https://github.com/STMicroelectronics/stm32ai-modelzoo-services.git
     mkdir -p $CONDA_PREFIX/etc/conda/activate.d
     echo 'export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$CONDA_PREFIX/lib/' > $CONDA_PREFIX/etc/conda/activate.d/env_vars.sh
     ```
-* Then install all the necessary python packages, the [requirement file](requirements.txt) contains it all.
+* Then install all the necessary Python packages, the [requirement file](requirements.txt) contains it all.
 
 ```
 pip install -r requirements.txt
@@ -510,7 +566,7 @@ In the `tutorials/notebooks` directory, you will find a Jupyter notebook that ca
             "secret_key" = "YOUR_SECRET_KEY"
         }
     }
-  
+
     ```
 
 Once configured, your experiments will be logged directly and shown in the project section under the name of your project.
@@ -525,7 +581,7 @@ Depending on which version of Windows OS you are using or where you place the pr
 
 1. **Enable Long Paths**: Create (or edit) a variable named `LongPathsEnabled` in the Registry Editor under `Computer\HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem` and assign it a value of `1`. This will change the maximum length allowed for the file path on Windows machines and will avoid any errors resulting due to this. For more details, refer to [Naming Files, Paths, and Namespaces](https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file).
 
-2. **GIT Configuration**: If you are using GIT, the line below may help solve the long path issue:
+2. **GIT Configuration**: If you are using Git, the line below may help solve the long path issue:
 
     ```bash
     git config --system core.longpaths true

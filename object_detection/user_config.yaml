@@ -2,7 +2,7 @@ general:
   project_name: COCO_2017_person_Demo
   model_type: st_yolo_lc_v1
 #choices=[st_ssd_mobilenet_v1, ssd_mobilenet_v2_fpnlite, tiny_yolo_v2, st_yolo_lc_v1, 
-#         st_yolo_x, yolo_v8, yolo_v5u]
+#         st_yolo_x, yolo_v8, yolo_v5u, yolo_v11, face_detect_front]
   model_path: 
   logs_dir: logs
   saved_models_dir: saved_models
@@ -76,7 +76,7 @@ training:
 postprocessing:
   confidence_thresh: 0.001
   NMS_thresh: 0.5
-  IoU_eval_thresh: 0.4
+  IoU_eval_thresh: 0.5
   plot_metrics: False   # Plot precision versus recall curves. Default is False.
   max_detection_boxes: 100
 
@@ -94,10 +94,10 @@ benchmarking:
 
 tools:
   stedgeai:
-    version: 10.0.0
+    version: 10.2.0
     optimization: balanced
     on_cloud: True
-    path_to_stedgeai: C:/Users/<XXXXX>/STM32Cube/Repository/Packs/STMicroelectronics/X-CUBE-AI/<*.*.*>/Utilities/windows/stedgeai.exe
+    path_to_stedgeai: C:/ST/STEdgeAI/<x.y>/Utilities/windows/stedgeai.exe
   path_to_cubeIDE: C:/ST/STM32CubeIDE_<*.*.*>/STM32CubeIDE/stm32cubeide.exe
 
 deployment:

@@ -91,7 +91,7 @@ class IspuAppDriver(AppDriver):
         elif self.compiler == 'stred-gcc':
             gprof_cmd = 'stred-gprof'
         else:
-            raise AiRunnerError('Unknown compiler ' + compiler_name)
+            raise AiRunnerError('Unknown compiler ' + self.compiler)
 
         gprof_exe = which(gprof_cmd)
         if not os.path.exists(gprof_exe):

@@ -794,20 +794,24 @@ class StAiFormat(ct.c_int32):
     STAI_FORMAT_FLOAT64 = 0x00822040
 
     STAI_FORMAT_U1 = 0x000400c0
+    STAI_FORMAT_U4 = 0x00040240
     STAI_FORMAT_U8 = 0x00040440
     STAI_FORMAT_U16 = 0x00040840
     STAI_FORMAT_U32 = 0x00041040
 
     STAI_FORMAT_S1 = 0x008400c0
+    STAI_FORMAT_S4 = 0x00840240
     STAI_FORMAT_S8 = 0x00840440
     STAI_FORMAT_S16 = 0x00840840
     STAI_FORMAT_S32 = 0x00841040
 
     STAI_FORMAT_Q = 0x00840040
+    STAI_FORMAT_Q3 = 0x00840243
     STAI_FORMAT_Q7 = 0x00840447
     STAI_FORMAT_Q15 = 0x0084084f
 
     STAI_FORMAT_UQ = 0x00040040
+    STAI_FORMAT_UQ3 = 0x00040243
     STAI_FORMAT_UQ7 = 0x00040447
     STAI_FORMAT_UQ15 = 0x0004084f
 
@@ -940,9 +944,11 @@ class StAiFormat(ct.c_int32):
         bool
             If self is integer
         """
-        if self.value in [self.STAI_FORMAT_S1, self.STAI_FORMAT_S8, self.STAI_FORMAT_S16, self.STAI_FORMAT_S32]:
+        if self.value in [self.STAI_FORMAT_S1, self.STAI_FORMAT_S4, self.STAI_FORMAT_S8, self.STAI_FORMAT_S16,
+                          self.STAI_FORMAT_S32]:
             return True
-        if self.value in [self.STAI_FORMAT_U1, self.STAI_FORMAT_U8, self.STAI_FORMAT_U16, self.STAI_FORMAT_U32]:
+        if self.value in [self.STAI_FORMAT_U1, self.STAI_FORMAT_U4, self.STAI_FORMAT_U8, self.STAI_FORMAT_U16,
+                          self.STAI_FORMAT_U32]:
             return True
         return False
 

@@ -1,0 +1,62 @@
+general:
+  project_name: neural_style_transfer
+  model_type: xinet_picasso_muse
+  model_path:  ../../stm32ai-modelzoo/neural_style_transfer/xinet_picasso_muse/Public_pretrainedmodel_public_dataset/coco_2017_80_classes_picasso/xinet_a75_picasso_muse_160/xinet_a75_picasso_muse_160_nomp.tflite
+  logs_dir: logs
+  display_figures: true
+  global_seed: 123
+  gpu_memory_limit: 4
+
+operation_mode: prediction
+
+dataset:
+  name: COCO
+
+preprocessing:
+  rescaling:
+    scale: 1/255.0
+    offset: 0
+  resizing:
+    interpolation: bilinear
+    aspect_ratio: fit
+  color_mode: rgb
+
+postprocessing:
+  bilateral_diameter: 15
+  sigma_color: 20
+  sigma_space: 10
+  scaling_alpha: 1.25
+  scaling_beta: -10
+  saturation_scale: 1.2
+
+prediction:
+  test_files_path: ./datasets/coco/images
+
+tools:
+  stedgeai:
+    version: 10.2.0
+    optimization: balanced
+    on_cloud: true
+    path_to_stedgeai: C:/ST/STEdgeAI/<x.y>/Utilities/windows/stedgeai.exe
+  path_to_cubeIDE: C:/ST/STM32CubeIDE_<*.*.*>/STM32CubeIDE/stm32cubeide.exe
+
+benchmarking:
+  board: STM32MP257F-EV1
+
+deployment:
+  c_project_path:
+  IDE:
+  verbosity:
+  hardware_setup:
+    serie:
+    board:
+    input:
+    output:
+    label_file_path:
+
+mlflow:
+  uri: ./src/experiments_outputs/mlruns
+
+hydra:
+   run:
+      dir: ./src/experiments_outputs/${now:%Y_%m_%d_%H_%M_%S}

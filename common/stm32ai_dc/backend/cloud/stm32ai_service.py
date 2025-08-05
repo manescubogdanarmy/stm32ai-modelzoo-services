@@ -20,15 +20,16 @@ from .helpers import get_value_or_default, _get_env_proxy
 from .endpoints import get_stm32ai_analyze_ep, get_stm32ai_generate_ep
 from .endpoints import get_stm32ai_run, get_stm32ai_service_ep
 from .endpoints import get_stm32ai_validate_ep
-
+from tqdm import tqdm
 
 STM32AI_SERVICE_MIN_VERSION = 0.0
 
 
 class Stm32AiService:
-    def __init__(self, auth_token, version: typing.Union[str, None]) -> None:
+    def __init__(self, auth_token, version: typing.Union[str, None], silent = False) -> None:
         self.auth_token = auth_token
         self.version = version
+        self.silent = silent
         if auth_token is None:
             raise Exception("Authentication token can't be None")
 
@@ -173,23 +174,28 @@ class Stm32AiService:
             return None
         start_time = time.time()
         is_over = False
-        while not is_over:
-            if (time.time() - start_time) > timeout:
-                is_over = True
+        with tqdm(total=100, desc="Waiting for run", unit='%', leave=False, disable=self.silent) as pbar:
+            while not is_over:
+                if (time.time() - start_time) > timeout:
+                    is_over = True
 
-            result = self._get_run(runtime_id)
-            if result:
-                if isinstance(result, object):
-                    state = result.get('state', None)
-                    if state != None:
-                        if result.get('result', None) != None:
-                            return result.get('result', {})
-                        elif state.lower() == 'error':
-                            return result
+                result = self._get_run(runtime_id)
+                if result:
+                    if isinstance(result, object):
+                        state = result.get('state', None)
+                        if state is not None:
+                            new_progress = 100 if state == 'done' else result.get('progress', 0)
+                            increment = new_progress - pbar.n
+                            pbar.update(increment)
+                            pbar.set_description(f'State: {state}')
+                            if result.get('result', None) is not None:
+                                return result.get('result', {})
+                            elif state.lower() == 'error':
+                                return result
+                    else:
+                        print("Error: Message received from server is not \
+                            an object: ", result)
+                        return None
+                    time.sleep(pooling_delay)
                 else:
-                    print("Error: Message received from server is not \
-                        an object: ", result)
-                    return None
-                time.sleep(pooling_delay)
-            else:
-                time.sleep(pooling_delay)
+                    time.sleep(pooling_delay)

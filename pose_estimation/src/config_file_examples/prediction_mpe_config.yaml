@@ -19,10 +19,10 @@ preprocessing:
 
 postprocessing:
    kpts_conf_thresh: 0.15
-   confidence_thresh: 0.001
+   confidence_thresh: 0.5
    NMS_thresh: 0.1
    plot_metrics: false
-   max_detection_boxes: 100
+   max_detection_boxes: 10
 
 prediction:
    test_files_path: ./datasets/COCO_test_dataset_multi_pose

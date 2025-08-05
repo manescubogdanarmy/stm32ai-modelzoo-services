@@ -16,6 +16,8 @@ Software BOM for STM32 use cases:
 * [speech_enhancement](./speech_enhancement/LICENSE.md)
 * [hand_posture](./hand_posture/LICENSE.md)
 * [human_activity_recognition](./human_activity_recognition/LICENSE.md)
+* [depth_estimation](./depth_estimation/LICENSE.md)
+* [neural_style_transfer](./neural_style_transfer/LICENSE.md)
 
 
 Software BOM for STM32 application codes:

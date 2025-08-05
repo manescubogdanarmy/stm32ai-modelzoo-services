@@ -288,6 +288,13 @@ def calculate_objdet_metrics(groundtruths_ds, detections_ds, iou_threshold=None,
         x = np.linspace(0, 1, 1000)
         conf_l = [detection[2] for detection in detections]
         conf = np.array(conf_l)
+
+        # if there is not detections for this class then put one value of confidence, recall and precision of zero
+        if np.any(conf)==False:
+          conf = np.zeros(1)
+          rec  = np.zeros(1)
+          pre  = np.zeros(1)
+
         irec = np.interp(-x, -conf, rec, left=0)
         ipre = np.interp(-x, -conf, pre, left=1)
 

@@ -36,7 +36,7 @@ from src.training import train
 from src.evaluation import evaluate
 from src.quantization import quantize
 from src.prediction import predict
-from deployment import deploy
+from src.deployment import deploy
 
 
 

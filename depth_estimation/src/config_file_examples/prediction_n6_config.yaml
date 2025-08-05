@@ -1,0 +1,35 @@
+general:
+   model_path: ../../stm32ai-modelzoo/depth_estimation/fast_depth/Public_pretrainedmodel_public_dataset/nyu_depth_v2/fast_depth_256/fast_depth_256_int8_pc.tflite
+   model_type: fast_depth
+   display_figures : False
+
+operation_mode: prediction
+
+preprocessing:
+   rescaling:
+      scale: 1/255
+      offset: 0
+   resizing:
+      interpolation: bilinear
+      aspect_ratio: fit
+   color_mode: rgb
+
+prediction:
+   test_files_path:  ./datasets/NYU_depth_v2/pred
+   profile: profile_O3
+   input_type: uint8     # int8 / uint8 / float32
+   output_type: int8     # int8 / uint8 / float32
+   input_chpos: chlast   # chlast / chfirst
+   output_chpos: chlast  # chlast / chfirst
+   target: stedgeai_n6 # host, stedgeai_host, stedgeai_n6
+
+tools:
+   stedgeai:
+      path_to_stedgeai: C:/ST/STEdgeAI/2.2/Utilities/windows/stedgeai.exe
+
+mlflow:
+   uri: ./src/experiments_outputs/mlruns
+
+hydra:
+   run:
+      dir: ./src/experiments_outputs/${now:%Y_%m_%d_%H_%M_%S}

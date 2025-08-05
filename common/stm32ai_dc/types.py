@@ -1373,6 +1373,8 @@ class MpuBenchmarkResult(typing.NamedTuple):
 
 class BenchmarkResult(typing.NamedTuple):
     # AnalyzeResult
+    activations_size: int
+    weights: int
     macc: int
     rom_size: int
     total_ram_io_size: int

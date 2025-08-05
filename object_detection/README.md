@@ -1,23 +1,21 @@
 # Object Detection STM32 Model Zoo
 
 ## Directory Components:
-* [datasets](datasets/README.md) placeholder for the object detection datasets.
-* deployment ([STM32H7](./deployment/README_STM32H7.md), [STM32N6](./deployment/README_STM32N6.md)) contains the necessary files for the deployment service.
-* [pretrained_models ](pretrained_models/README.md) points on a collection of optimized pretrained models
-  detection use cases.
-* [src](src/README.md) contains tools to train, evaluate, benchmark and quantize your model on your STM32 target.
+* [datasets](./docs/README_DATASETS.md) placeholder for the object detection datasets.
+* [docs](./docs/) contains all readmes and documentation specific to the object detection use case.
+* [src](./docs/README_OVERVIEW.md) contains tools to train, evaluate, benchmark, quantize and deploy your model on your STM32 target.
 
 ## Quick & easy examples:
 The `operation_mode` top-level attribute specifies the operations or the service you want to execute. This may be a single operation or a set of chained operations.
 
 You can refer to the README links below that provide typical examples of operation modes and tutorials on specific services:
 
-- [training, chain_tqe, chain_tqeb](./src/training/README.md)
-- [quantization, chain_eqe, chain_qb](./src/quantization/README.md)
-- [evaluation, chain_eqeb](./src/evaluation/README.md)
-- [benchmarking](./src/benchmarking/README.md)
-- [prediction](./src/prediction/README.md)
-- deployment, chain_qd ([STM32H7](./deployment/README_STM32H7.md), [STM32N6](./deployment/README_STM32N6.md))
+- [training, chain_tqe, chain_tqeb](./docs/README_OVERVIEW.md)
+- [quantization, chain_eqe, chain_qb](./docs/README_QUANTIZATION.md)
+- [evaluation, chain_eqeb](./docs/README_EVALUATION.md)
+- [benchmarking](./docs/README_BENCHMARKING.md)
+- [prediction](./docs/README_PREDICTION.md)
+- deployment, chain_qd ([STM32H7](./docs/README_DEPLOYMENT_STM32H7.md), [STM32N6](./docs/README_DEPLOYMENT_STM32N6.md), [STM32MPU](./docs/README_DEPLOYMENT_MPU.md))
 
 All `.yaml` configuration examples are located in the [config_file_examples](./src/config_file_examples/) folder.
 
@@ -58,19 +56,19 @@ The `model_type` attributes currently supported for the object detection are:
 
 - `yolo_v4`: YOLO (You Only Look Once) version 4 from Nvidia TAO (train adapt and optimize) toolkit with different possible backbones for feature extractions including different versions of resnet, mobilenet, darknet, efficientnet, vgg, and cspdarknet.
 
-
 - `yolo_v4_tiny`: YOLO (You Only Look Once) version 4 __tiny__ from Nvidia TAO (train adapt and optimize) toolkit with backbones csp_darknet_tiny as the backbone.
 
+- `face_detect_front` : BlazeFace Front 128x128 is a lightweight and efficient face detection model optimized for real-time applications on embedded devices. It is a variant of the BlazeFace architecture, designed specifically for detecting frontal faces at a resolution of 128x128 pixels.
 
 
 ## You don't know where to start? You feel lost?
 Don't forget to follow our tuto below for a quick ramp up : 
-* [How can I use my own dataset?](../object_detection/deployment/doc/tuto/how_to_use_my_own_object_detection_dataset.md)
-* [How can I fine tune a pretrained model on my own dataset?](../object_detection/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](../object_detection/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](../object_detection/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I quantize, evaluate and deploy an Ultralytics Yolov8 model?](../object_detection/deployment/doc/tuto/How_to_deploy_yolov8_yolov5_object_detection.md)
-* [How can I evaluate my model on STM32N6 target?](../object_detection/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How can I use my own dataset?](./docs/tuto/how_to_use_my_own_object_detection_dataset.md)
+* [How can I fine tune a pretrained model on my own dataset?](./docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I quantize, evaluate and deploy an Ultralytics Yolov8 model?](./docs/tuto/How_to_deploy_yolov8_yolov5_object_detection.md)
+* [How can I evaluate my model on STM32N6 target?](./docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Remember that minimalistic yaml files are available [here](./src/config_file_examples/) to play with specific services, and that all pre-trained models in the [STM32 model zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo/) are provided with their configuration .yaml file used to generate them. These are very good starting points to start playing with!
 

@@ -435,7 +435,7 @@ def load_dataset(dataset_name: str = None,
             interpolation=interpolation,
             aspect_ratio=aspect_ratio,
             color_mode=color_mode,
-            batch_size=batch_size,
+            batch_size=1,
             seed=seed)
     else:
         quantization_ds = None

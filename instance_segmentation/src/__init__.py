@@ -11,7 +11,7 @@ __all__ = [
             "preprocessing",
             "postprocessing",
             "prediction", 
-            "benchmarking",
+            "deployment",
 ]
 
 

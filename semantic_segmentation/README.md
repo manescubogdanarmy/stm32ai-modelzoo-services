@@ -2,22 +2,21 @@
 
 
 ## Directory components:
-* [datasets](datasets/README.md) placeholder for the semantic segmentation datasets.
-* [deployment](deployment/README.md) contains the necessary files for the deployment service.
-* [pretrained_models](pretrained_models/README.md) points to a collection of optimized pretrained models on different semantic segmentation datasets.
-* [src](src/README.md) contains tools to train, evaluate, benchmark and quantize your model on your STM32 target.
+* [datasets](./docs/README_DATASETS.md) placeholder for the semantic segmentation datasets.
+* [docs](./docs/) contains all readmes and documentation specific to the semantic segmentation use case.
+* [src](./docs/README_OVERVIEW.md) contains tools to train, evaluate, benchmark, quantize and deploy your model on your STM32 target.
 
 ## Quick & easy examples:
 The `operation_mode` top-level attribute specifies the operations or the service you want to execute. This may be single operation or a set of chained operations.
 
 You can refer to readme links below that provide typical examples of operation modes, and tutorials on specific services:
 
-   - [training, chain_tqe (train + quantize + evaluate + benchmark), chain_tqeb](./src/training/README.md)
-   - [quantization, chain_eqe, chain_qb](./src/quantization/README.md)
-   - [evaluation, chain_eqeb](./src/evaluation/README.md)
-   - [benchmarking](./src/benchmarking/README.md)
-   - [prediction](./src/prediction/README.md)
-   - [deployment, chain_qd](./deployment/README.md)
+   - [training, chain_tqe (train + quantize + evaluate + benchmark), chain_tqeb](./docs/README_TRAINING.md)
+   - [quantization, chain_eqe, chain_qb](./docs/README_QUANTIZATION.md)
+   - [evaluation, chain_eqeb](./docs/README_EVALUATION.md)
+   - [benchmarking](./docs/README_BENCHMARKING.md)
+   - [prediction](./docs/README_PREDICTION.md)
+   - deployment, chain_qd ([STM32N6](./docs/README_DEPLOYMENT_STM32N6.md), [STM32MPU](./docs/README_DEPLOYMENT_MPU.md))
 
 All .yaml configuration examples are located in [config_file_examples](./src/config_file_examples/) folder.
 
@@ -45,11 +44,11 @@ It is composed of a backbone (encoder) that can be a Mobilenet V2 (width paramet
 
 ## You don't know where to start? You feel lost?
 Don't forget to follow our tuto below for a quick ramp up : 
-* [How to define and train my own model?](../semantic_segmentation/deployment/doc/tuto/how_to_define_and_train_my_own_model.md)
-* [How can I fine tune a pretrained model on my own dataset?](../semantic_segmentation/deployment/doc/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
-* [How can I check the accuracy after quantization of my model?](../semantic_segmentation/deployment/doc/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
-* [How can I quickly check the performance of my model using the dev cloud?](../semantic_segmentation/deployment/doc/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
-* [How can I evaluate my model on STM32N6 target?](../semantic_segmentation/deployment/doc/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
+* [How to define and train my own model?](./docs/tuto/how_to_define_and_train_my_own_model.md)
+* [How can I fine tune a pretrained model on my own dataset?](./docs/tuto/how_to_finetune_a_model_zoo_model_on_my_own_dataset.md)
+* [How can I check the accuracy after quantization of my model?](./docs/tuto/how_to_compare_the_accuracy_after_quantization_of_my_model.md)
+* [How can I quickly check the performance of my model using the dev cloud?](./docs/tuto/how_to_quickly_benchmark_the_performances_of_a_model.md)
+* [How can I evaluate my model on STM32N6 target?](./docs/tuto/how_to_evaluate_my_model_on_stm32n6_target.md)
 
 Remember that minimalistic yaml files are available [here](./src/config_file_examples/) to play with specific services, and that all pre-trained models in the [STM32 model zoo](https://github.com/STMicroelectronics/stm32ai-modelzoo/) are provided with their configuration .yaml file used to generate them. These are very good starting points to start playing with!
 

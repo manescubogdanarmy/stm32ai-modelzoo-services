@@ -1,0 +1,69 @@
+general:
+  project_name: sensor_classification
+  logs_dir: logs
+  saved_models_dir: saved_models
+  display_figures: True
+  global_seed: 123
+  gpu_memory_limit: 8
+
+operation_mode: training
+
+dataset:
+  name: sensor_data
+  class_names: ['high_body_temperature', 'muscle_fatigue', 'emg_fatigue', 'poor_posture', 'high_env_temperature', 'high_stress', 'eye_fatigue', 'normal']
+  training_path: ./datasets/sensor_data
+  validation_path:
+  validation_split: 0.2
+  test_path:
+  check_image_files: True
+  seed: 123
+
+preprocessing:
+  rescaling:
+    scale: 1/255.0
+    offset: 0
+  resizing:
+    interpolation: nearest
+    aspect_ratio: fit
+  color_mode: grayscale
+
+data_augmentation:
+  # Minimal augmentation for sensor data to preserve signal integrity
+  random_flip:
+    mode: horizontal
+  random_translation:
+    width_factor: 0.1
+    height_factor: 0.0  # No vertical translation for 2-pixel height
+    fill_mode: constant
+    interpolation: nearest
+
+training:
+  model:
+    name: stmnist  # Using a simpler model for small sensor data
+    input_shape: (32, 32, 1)  # Resize 16x2 to 32x32 greyscale for better compatibility
+    pretrained_weights: None  # No pretrained weights for custom sensor data
+  batch_size: 32
+  epochs: 100
+  dropout: 0.5
+  optimizer:
+    Adam:
+      learning_rate: 0.001
+  callbacks:
+    ReduceLROnPlateau:
+      monitor: val_accuracy
+      mode: max
+      factor: 0.5
+      patience: 10
+      min_lr: 1.0e-05
+    EarlyStopping:
+      monitor: val_accuracy
+      mode: max
+      restore_best_weights: true
+      patience: 20
+
+mlflow:
+  uri: ./src/experiments_outputs/mlruns
+
+hydra:
+  run:
+    dir: ./src/experiments_outputs/${now:%Y_%m_%d_%H_%M_%S}

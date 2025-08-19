@@ -1,0 +1,9 @@
+class,image_count,sensor_position
+high_body_temperature,1000,0
+muscle_fatigue,1000,1
+emg_fatigue,1000,2
+poor_posture,1000,3
+high_env_temperature,1000,4
+high_stress,1000,5
+eye_fatigue,1000,6
+normal,1000,7

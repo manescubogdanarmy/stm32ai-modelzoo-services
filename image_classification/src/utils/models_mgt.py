@@ -22,6 +22,7 @@ from src.models import get_mobilenetv1, get_mobilenetv2, get_fdmobilenet, get_re
                                  get_resnet50v2, get_squeezenetv11, get_stmnist, get_st_efficientnet_lc_v1, \
                                  get_st_fdmobilenet_v1, \
                                  get_efficientnetv2, get_custom_model
+from src.models.stmnist_multilabel import get_stmnist_multilabel
 
 
 def ai_runner_invoke(image_processed,ai_runner_interpreter):
@@ -193,7 +194,8 @@ def get_model(cfg: DictConfig = None, num_classes: int = None, dropout: float = 
     # If the model is ST-MNIST
     if model_name == "stmnist":
         check_attributes(cfg, expected=["name", "input_shape"], section=section)
-        model = get_stmnist(input_shape=cfg.input_shape, num_classes=num_classes, dropout=dropout)
+        # Use multi-label version for sensor classification
+        model = get_stmnist_multilabel(input_shape=cfg.input_shape, num_classes=num_classes, dropout=dropout)
         if cfg.pretrained_model_path:
             transfer_pretrained_weights(
                         model,
@@ -267,9 +269,13 @@ def get_loss(num_classes: int) -> tf.keras.losses:
     Returns:
         tf.keras.losses: The appropriate loss function based on the number of classes in the dataset.
     """
-    # We use the sparse version of the categorical crossentropy because
-    # this is what we use to load the dataset.
-    if num_classes > 2:
+    # For sensor classification, we use binary crossentropy to support multi-label classification
+    # (multiple sensors can be active simultaneously)
+    if num_classes == 8:  # Our sensor classification case
+        loss = tf.keras.losses.BinaryCrossentropy(from_logits=False)
+    elif num_classes > 2:
+        # We use the sparse version of the categorical crossentropy because
+        # this is what we use to load the dataset.
         loss = tf.keras.losses.SparseCategoricalCrossentropy(from_logits=False)
     else:
         loss = tf.keras.losses.BinaryCrossentropy(from_logits=False)

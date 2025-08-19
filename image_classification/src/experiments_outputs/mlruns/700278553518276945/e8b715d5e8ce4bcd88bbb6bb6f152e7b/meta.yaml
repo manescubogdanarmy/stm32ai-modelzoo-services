@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/Bogdan/Documents/GitHub/stm32ai-modelzoo-services/image_classification/src/experiments_outputs/mlruns/700278553518276945/e8b715d5e8ce4bcd88bbb6bb6f152e7b/artifacts
+end_time: 1754042071866
+entry_point_name: ''
+experiment_id: '700278553518276945'
+lifecycle_stage: active
+run_id: e8b715d5e8ce4bcd88bbb6bb6f152e7b
+run_name: '2025_08_01_12_54_23'
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1754042069267
+status: 3
+tags: []
+user_id: Bogdan

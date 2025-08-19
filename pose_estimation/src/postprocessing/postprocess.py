@@ -173,19 +173,17 @@ def hand_landmarks_postprocess(tensor:[tf.Tensor]):
     return det, norm_det, htype, hprob
 
 
-def head_landmarks_postprocess(tensor:[tf.Tensor]):
+def head_landmarks_postprocess(tensor:tf.Tensor):
     '''
     Post-process for the head landmarks use-case
 
     Args
-        tensor  list(tf.Tensor): shape [(batch,1,1,keypoints*3),(batch,1,1),(batch,1)] FLOAT32 outputs of the head landmarks
+        tensor   (tf.Tensor): shape (batch,1,keypoints*2,1) FLOAT32 outputs of the head landmarks
     
     Returns:
-        det      (tf.Tensor): shape (batch, keypoints*3) FLOAT32 3D detections of the head landmarks in pixels
-        hprob    (tf.Tensor): shape (batch,) FLOAT32 presence probability of the head
+        det      (tf.Tensor): shape (batch, keypoints*2) FLOAT32 (x,y) detections of the head landmarks in pixels
     '''
 
-    det   = tensor[0][:,0,0] # shape (batch, 478)
-    hprob = tensor[2][:,0] # shape (batch,)
+    det   = tensor[:,0,:,0] # shape (batch, 478)
 
-    return det, hprob
+    return det

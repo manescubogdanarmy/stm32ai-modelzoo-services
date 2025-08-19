@@ -9,4 +9,4 @@
 from .parse_config import get_config
 from .models_mgt import ai_runner_invoke, load_model_for_training
 from .gen_h_file import gen_h_user_file_n6
-from .connections import skeleton_connections_dict
+from .connections import skeleton_connections_dict, stm32_to_opencv_colors_dict

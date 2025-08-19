@@ -35,7 +35,7 @@ def _check_dataset_paths_and_contents(cfg, mode: str = None, mode_groups: DictCo
         """
 
     # Check the datasets
-    for name in ["training_path", "validation_path", "test_path", "quantization_path"]:
+    for name in ["training_path", "validation_path", "test_path"]:
         path = cfg[name]
         if path:
             if not os.path.isdir(path):
@@ -90,8 +90,8 @@ def parse_dataset_section(cfg: DictConfig, mode: str = None, mode_groups: DictCo
     elif cfg.classes_file_path:
         cfg.class_names = get_class_names_from_file(cfg)
         print("[INFO] : Found {} classes in label file {}".format(len(cfg.class_names), cfg.classes_file_path))
-    elif mode in mode_groups.training or mode_groups.evaluation:
-        for path in [cfg.training_path, cfg.validation_path, cfg.test_path]:
+    elif (mode in mode_groups.training) or (mode in mode_groups.evaluation) or (mode in mode_groups.quantization):
+        for path in [cfg.training_path, cfg.validation_path, cfg.test_path, cfg.quantization_path]:
             if path:
                 cfg.class_names = _get_class_names(dataset_root_dir=path)
                 print(f"[INFO] : Found {len(cfg.class_names)} classes in the dataset.")
@@ -389,11 +389,14 @@ def get_config(config_data: DictConfig) -> DefaultMunch:
     # Deployment section parsing
     if cfg.operation_mode in mode_groups.deployment:
         if cfg.hardware_type == "MCU":
-            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup", "build_conf"]
+            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup"]
             legal_hw = ["serie", "board", "stlink_serial_number"]
-            # Append additional items if hardware_type is "MCU_H7"
-            if cfg.deployment.hardware_setup.serie == "STM32H7":
+            # Append additional items if board is "NUCLEO-H743ZI2"
+            if cfg.deployment.hardware_setup.board == "NUCLEO-H743ZI2":
                 legal_hw += ["input", "output"]
+            # Append additional items if board is "NUCLEO-N657X0-Q"
+            if cfg.deployment.hardware_setup.board == "NUCLEO-N657X0-Q":
+                legal_hw += ["output"]
         else:
             legal = ["c_project_path", "board_deploy_path", "verbosity", "hardware_setup"]
             legal_hw = ["serie", "board", "ip_address", "stlink_serial_number"]

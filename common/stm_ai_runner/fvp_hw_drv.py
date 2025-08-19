@@ -22,7 +22,7 @@ import time as t
 import socket
 
 import iris.debug
-        
+
 from .ai_runner import AiHwDriver
 from .ai_runner import HwIOError
 
@@ -146,7 +146,7 @@ class FvpHwDriver(AiHwDriver):
         if self._hostname is None:
             raise HwIOError(msg_err)
 
-        self._iris_model = iris.debug.NetworkModel(host = "localhost", port = self._iris_port)
+        self._iris_model = iris.debug.NetworkModel(host="localhost", port=self._iris_port)
         self._iris_cpu = self._iris_model.get_cpus()[0]
         self._kill_on_exist = 'kill-on-exist' in desc
 
@@ -201,25 +201,32 @@ class FvpHwDriver(AiHwDriver):
             return 1
         self._logger.info('direct memory write {} / {}'.format(hex(target_add), len(data)))
         # Split large writes
-        _chunckWriteMax = 1228800 # maximum size seen as correcly written in one call
+        _chunckWriteMax = 1228800  # maximum size seen as correcly written in one call
         _currPos = 0
-        while (len(data)-_currPos) > 0:
+        while (len(data) - _currPos) > 0:
             try:
-                _size = min(len(data)-_currPos,_chunckWriteMax)
-                self._logger.info('---> direct memory write {} / {} {}'.format(hex(target_add+_currPos), len(bytearray(data[_currPos:_currPos+_size])), _size ))
-                self._iris_cpu.write_memory(target_add+_currPos, bytearray(data[_currPos:_currPos+_size]), size=1, count=len(data[_currPos:_currPos+_size]) )
+                _size = min(len(data) - _currPos, _chunckWriteMax)
+                self._logger.info('---> direct memory write {} / {} {}'.format(
+                    hex(target_add + _currPos),
+                    len(bytearray(data[_currPos:_currPos + _size])),
+                    _size))
+                self._iris_cpu.write_memory(target_add + _currPos,
+                                            bytearray(data[_currPos:_currPos + _size]),
+                                            size=1,
+                                            count=len(data[_currPos:_currPos + _size]))
                 _currPos += _size
             except Exception as err:
-                self._logger.info(f"Exception during write {err} {len(data[_currPos:_currPos+_size])} bytes @ {hex(target_add+_currPos)}");
-                
-        #self._iris_cpu.write_memory(target_add, bytearray(data), size=1, count=len(data))
+                self._logger.info(f"Exception during write {err} {len(data[_currPos:_currPos+_size])}"
+                                  f"bytes @ {hex(target_add+_currPos)}")
+                raise HwIOError(err)
+
         return len(data)
 
     def short_desc(self, full: bool = True):
         """Report a human description of the connection state"""  # noqa: DAR101,DAR201,DAR401
         desc = 'FVP:' + str(self._hostname) + ':' + str(self._port)
         if full:
-          desc += ':connected' if self.is_connected else ':not connected'
+            desc += ':connected' if self.is_connected else ':not connected'
         return desc
 
 

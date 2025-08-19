@@ -27,7 +27,7 @@ from common.utils import mlflow_ini, set_gpu_memory_limit, get_random_seed, log_
 from common.benchmarking import benchmark
 from src.utils import get_config
 from src.prediction import predict
-from deployment import deploy
+from src.deployment import deploy
 
 
 def process_mode(mode: str = None,

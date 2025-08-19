@@ -95,7 +95,7 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         if params.general.model_type == "yolo_v8_seg":
             f.write("#define POSTPROCESS_TYPE POSTPROCESS_ISEG_YOLO_V8_UI\n\n")
         else:
-            raise TypeError("please select one of this supported post processing options [CENTER_NET, st_yolo_x, st_yolo_lc_v1, tiny_yolo_v2, st_ssd_mobilenet_v1, ssd_mobilenet_v2_fpnlite ]")
+            raise TypeError("please select one of this supported post processing options [yolo_v8_seg]")
 
         f.write("#define NN_HEIGHT     ({})\n".format(int(input_shape[1])))
         f.write("#define NN_WIDTH      ({})\n".format(int(input_shape[2])))

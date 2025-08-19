@@ -13,6 +13,7 @@ import os
 import sys
 import shlex
 import subprocess
+import functools
 from subprocess import Popen
 from typing import List, Union, Optional, Tuple, Dict
 import mlflow
@@ -77,21 +78,42 @@ def _analyze_footprints(offline: bool = True, results: dict = None, stm32ai_outp
     output_dir = HydraConfig.get().runtime.output_dir
     if target_mcu:
         if offline:
-            with open(os.path.join(stm32ai_output, 'network_report.json'), 'r') as f:
-                results = json.load(f)
-            # Extract footprint values
-            if isinstance(results["ram_size"], list):
-                activations_ram = round(int(results["ram_size"][0]) / 1024, 2) # for version <= 8.1.0
+            network_report_path = os.path.join(stm32ai_output, 'network_report.json')
+            network_c_info_path = os.path.join(stm32ai_output, 'network_c_info.json')
+
+            if os.path.isfile(network_report_path):
+                with open(network_report_path, 'r') as f:
+                    results = json.load(f)
+                if isinstance(results.get("ram_size"), list):
+                    activations_ram = round(int(results["ram_size"][0]) / 1024, 2)  # version <= 8.1.0
+                else:
+                    activations_ram = round(int(results.get("ram_size", 0)) / 1024, 2)  # version >= 9.0.0
+                weights_rom = round(int(results.get("rom_size", 0)) / 1024, 2)
+                macc = round(int(results.get("rom_n_macc", 0)) / 1e6, 3)
+
+            elif os.path.isfile(network_c_info_path):
+                with open(network_c_info_path, 'r') as f:
+                    cinfo = json.load(f)
+
+                cinfo_graph = cinfo['graphs'][0] 
+                memory_footprint = cinfo.get("memory_footprint", {})
+                activations_size = memory_footprint.get('activations', 0)
+                weights = memory_footprint.get('weights', 0)
+                nodes = cinfo_graph.get('nodes', [])
+                macc = functools.reduce(lambda a, b: a + b, map(lambda a: a['macc'], nodes), 0)
+
+                activations_ram = round(activations_size / 1024, 2)
+                weights_rom = round(weights / 1024, 2)
+                macc = round(macc / 1e6, 3)
             else:
-                activations_ram = round(int(results["ram_size"]) / 1024, 2) # for version >= 9.0.0
-            weights_rom = round(int(results["rom_size"]) / 1024, 2)
-            macc = round(int(results["rom_n_macc"]) / 1e6, 3)
+                raise FileNotFoundError("Neither 'network_report.json' nor 'network_c_info.json' found in '{}'".format(stm32ai_output))
+
             print("[INFO] : RAM Activations : {} (KiB)".format(activations_ram))
             print("[INFO] : Flash weights : {} (KiB)".format(weights_rom))
             print("[INFO] : MACCs : {} (M)".format(macc))
         else:
-            activations_ram = round(int(results["ram_size"]) / 1024, 2)
-            weights_rom = round(int(results["rom_size"]) / 1024, 2)
+            activations_ram = round(int(results["activations_size"]) / 1024, 2)
+            weights_rom = round(int(results["weights"]) / 1024, 2)
             macc = round(int(results["macc"]) / 1e6, 3)
 #            tools_version = results["report"]["tools_version"]
             # Check if inference results or tools version 8

@@ -13,6 +13,7 @@ import pickle
 import scipy.io
 import numpy as np
 import tensorflow as tf
+from pathlib import Path
 from typing import Tuple, List
 
 
@@ -428,14 +429,25 @@ def _get_path_dataset(path: str,
     """
 
     data_list = []
-    labels = os.listdir(path)
+    labels = []
 
-    for label in class_names:
-        assert label in labels, f"[ERROR] label {label} not found in {path}"
+    for d in os.scandir(path):
+        if d.is_dir():
+            labels.append(d.name)
+        elif Path(d.name).suffix.lower() in [".jpg",".jpeg",".png"]:
+            data_list.append((os.path.join(path,d.name),0))
 
-    for idx, label in enumerate(sorted(class_names)):
-        imgs = os.listdir(os.path.join(path, label))
-        data_list.extend(sorted([(os.path.join(path,label,img), idx) for img in imgs]))
+    if labels == []:
+        imgs = os.listdir(path)
+        data_list = sorted(data_list)
+
+    else :
+        data_list = []
+        for label in class_names:
+            assert label in labels, f"[ERROR] label {label} not found in {path}"
+        for idx, label in enumerate(sorted(class_names)):
+            imgs = os.listdir(os.path.join(path, label))
+            data_list.extend(sorted([(os.path.join(path,label,img), idx) for img in imgs]))
 
     if shuffle:
         rng = np.random.RandomState(seed)
@@ -448,13 +460,13 @@ def _get_path_dataset(path: str,
 
 
 def _preprocess_function(data_x : tf.Tensor,
-                        data_y : tf.Tensor,
-                        image_size: tuple[int],
-                        interpolation: str,
-                        aspect_ratio: str,
-                        color_mode: str,
-                        label_mode: str,
-                        num_classes: int) -> tuple[tf.Tensor, tf.Tensor]:
+                         data_y : tf.Tensor,
+                         image_size: tuple[int],
+                         interpolation: str,
+                         aspect_ratio: str,
+                         color_mode: str,
+                         label_mode: str,
+                         num_classes: int) -> tuple[tf.Tensor, tf.Tensor]:
     """
     Load images from path and apply necessary transformations.
     """
@@ -679,6 +691,9 @@ def load_dataset(dataset_name: str = None,
 
     if class_names:
         num_classes = len(class_names)
+    elif quantization_path:
+        class_names = []
+        num_classes = 0
     else:
         return None, None, None, None
     

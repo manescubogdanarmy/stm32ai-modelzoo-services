@@ -28,7 +28,7 @@ from .external_memory_mgt import update_activation_c_code
 
 import json
 import re
-from typing import Dict, List 
+from typing import Dict, List
 
 
 def _keep_internal_weights(path_network_data_params: str):
@@ -184,14 +184,11 @@ def stm32ai_deploy(target: bool = False,
             benchmark_model(optimization=optimization, model_path=model_path,
                             path_to_stm32ai=path_to_stm32ai, stm32ai_output=stm32ai_output,
                             stm32ai_version=stm32ai_version, get_model_name_output=get_model_name_output)
-            with open(os.path.join(stm32ai_output, 'network_report.json'), 'r') as f:
+            with open(os.path.join(stm32ai_output, 'network_c_info.json'), 'r') as f:
                 report = json.load(f)
 
-            needed_rom = report["model_size"]
-            if isinstance(report["ram_size"], list):
-                needed_ram = int(report["ram_size"][0])
-            else:
-                needed_ram = int(report["ram_size"])
+            needed_rom = report["memory_footprint"]["weights"]
+            needed_ram = report["memory_footprint"]["activations"]
 
             with open(os.path.join(board.config.memory_pool_path), 'r') as f:
                 memory_pool = json.load(f)
@@ -293,8 +290,8 @@ def stm32ai_deploy(target: bool = False,
                 # Get footprints of the given model
                 results = cloud_analyze(ai=ai, model_path=model_path, optimization=optimization,
                                 get_model_name_output=get_model_name_output)
-                needed_ram = int(results["ram_size"])
-                needed_rom = int(results["rom_size"])
+                needed_ram = int(results["activations_size"])
+                needed_rom = int(results["weights"])
 
                 with open(os.path.join(board.config.memory_pool_path), 'r') as f:
                     memory_pool = json.load(f)
@@ -481,7 +478,8 @@ def stm32ai_deploy_stm32n6(target: bool = False,
             if os.path.exists(stm32ai_output):
                 # Move the existing STM32Cube.AI output directory to the output directory
                 #os.rename(stm32ai_output,"generated")
-                shutil.move(stm32ai_output, os.path.join(output_dir, "generated"))
+                if stm32ai_output != os.path.join(output_dir, "generated"):
+                    shutil.move(stm32ai_output, os.path.join(output_dir, "generated"))
                 stm32ai_output = os.path.join(output_dir, "generated")
 
                 # Check if STM32Cube.AI was used locally to add the Lib/Inc generation
@@ -542,6 +540,7 @@ def stm32ai_deploy_mpu(target: bool = False,
     subprocess_timeout = 5
     count_params = '-n' if platform.system().lower() == 'windows' else '-c'
     timeout_params = '-w' if platform.system().lower() == 'windows' else '-W'
+    model_extension = "tflite"
 
     cmd =  ['ping', count_params, str(count), timeout_params, str(timeout), board_ip_address]
     try:
@@ -550,9 +549,9 @@ def stm32ai_deploy_mpu(target: bool = False,
         # Check the return code to determine if ping was successful
         if res.returncode == 0:
             print(f"[INFO] : Board is reachable at {board_ip_address} address")
-        else :
-             print(f"[FAIL] : Board is not reachable at {board_ip_address} address")
-             return False
+        else:
+            print(f"[FAIL] : Board is not reachable at {board_ip_address} address")
+            return False
     except subprocess.TimeoutExpired:
         print(f"[FAIL] : Board is not reachable, ping command timed out after {subprocess_timeout} seconds.")
         return False
@@ -572,16 +571,15 @@ def stm32ai_deploy_mpu(target: bool = False,
     # Populate the deploy directory with application code
     path_to_application = c_project_path + "Application/"
     path_to_resources = c_project_path + "Resources/"
-        
-    # create the class names txt if not already existing 
+
+    # create the class names txt if not already existing
     label_file = os.path.join(path_to_resources, 'class_names.txt')
-    if isinstance(class_names, list) and all(isinstance(name, str) for name in class_names):    
+    if isinstance(class_names, list) and all(isinstance(name, str) for name in class_names):
         with open(label_file, 'w') as file:
             for class_name in class_names:
                 file.write(class_name + '\n')
     elif isinstance(class_names, str) and class_names.endswith('.txt'):
         shutil.copy(class_names, label_file)
-    
 
     command = "scp -r " + path_to_application + " " + path_to_resources + " " + model_path + " root@" + board_ip_address + ":" + board_deploy
     deploy_res = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
@@ -595,16 +593,39 @@ def stm32ai_deploy_mpu(target: bool = False,
     #send target specific resources
     if "STM32MP2" in target:
         path_to_target_resources = c_project_path + "/STM32MP2/*.sh"
+        model_extension = "nbg"
     else:
         path_to_target_resources = c_project_path + "/STM32MP1/*.sh"
+        model_extension = "tflite"
 
     command = "scp -r -p " + path_to_target_resources + " root@" + board_ip_address + ":" + board_deploy + "/Resources"
-
     deploy_spe_res = subprocess.run(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=300)
 
-    if deploy_spe_res.returncode != 0 :
+    if deploy_spe_res.returncode != 0:
         print(f"[FAIL] : Application code deployment failed : {deploy_spe_res.stderr} ")
         return False
+
+    # Define remote paths
+    remote_application_path = os.path.join(board_deploy, "Application")
+    remote_resources_path = os.path.join(board_deploy, "Resources")
+
+    # Command to chmod +x all .sh files in Application folder
+    chmod_application_cmd = f"chmod +x {remote_application_path}/*.sh"
+    ssh_chmod_app = subprocess.run(
+        f"ssh -o \"StrictHostKeyChecking no\" root@{board_ip_address} \"{chmod_application_cmd}\"",
+        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60
+    )
+    if ssh_chmod_app.returncode != 0:
+        print(f"[WARN] : chmod +x on Application/*.sh failed: {ssh_chmod_app.stderr.decode().strip()}")
+
+    # Command to chmod +x all .sh files in Resources folder
+    chmod_resources_cmd = f"chmod +x {remote_resources_path}/*.sh"
+    ssh_chmod_res = subprocess.run(
+        f"ssh -o \"StrictHostKeyChecking no\" root@{board_ip_address} \"{chmod_resources_cmd}\"",
+        shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=60
+    )
+    if ssh_chmod_res.returncode != 0:
+        print(f"[WARN] : chmod +x on Resources/*.sh failed: {ssh_chmod_res.stderr.decode().strip()}")
 
     # Find the application launch script name
     script_extension = ".sh"
@@ -613,12 +634,20 @@ def stm32ai_deploy_mpu(target: bool = False,
         if Path(item).suffix == script_extension:
             file_names.append(os.path.basename(item))
 
+    launch_script = None
     for file_name in file_names:
         if "launch_" in file_name:
             launch_script = file_name
+            break
+
+    if launch_script is None:
+        print("[FAIL] : Launch script not found in Application folder")
+        return False
 
     #launch the application
-    command = board_deploy + "/Application/" + launch_script + " " + board_deploy + " " + os.path.basename(model_path) + " " + os.path.basename(label_file)
+    command = board_deploy + "/Application/" + launch_script  + " " + model_extension + " "  + board_deploy
     print(f"[INFO] : To launch application directly on the target please run : {command}")
     command = "ssh -o \"StrictHostKeyChecking no\" root@"+board_ip_address+" \""+command+"\""
     print(f"[INFO] : To launch application from your host computer please run : {command}")
+
+    return True

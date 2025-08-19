@@ -21,8 +21,8 @@ preprocessing:
   color_mode: rgb
 
 postprocessing:
-  confidence_thresh: 0.6
-  IoU_eval_thresh: 0.4
+  confidence_thresh: 0.5
+  IoU_eval_thresh: 0.5
 
 prediction:
   test_files_path: ./datasets/coco/images

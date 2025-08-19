@@ -15,6 +15,7 @@ __all__ = [
             "models",
             "evaluation", 
             "data_augmentation",
+            "deployment",
 ]
 
 

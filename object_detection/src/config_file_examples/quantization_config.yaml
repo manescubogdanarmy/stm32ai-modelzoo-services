@@ -24,11 +24,11 @@ quantization:
   export_dir: quantized_models
 
 postprocessing:
-  confidence_thresh: 0.6
+  confidence_thresh: 0.001
   NMS_thresh: 0.5
-  IoU_eval_thresh: 0.3
+  IoU_eval_thresh: 0.5
   plot_metrics: True   # Plot precision versus recall curves. Default is False.
-  max_detection_boxes: 10
+  max_detection_boxes: 100
 
 mlflow:
   uri: ./src/experiments_outputs/mlruns

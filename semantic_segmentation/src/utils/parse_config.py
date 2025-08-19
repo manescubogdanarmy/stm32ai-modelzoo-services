@@ -402,8 +402,11 @@ def get_config(config_data: DictConfig) -> DefaultMunch:
     # Deployment section parsing
     if cfg.operation_mode in mode_groups.deployment:
         if cfg.hardware_type == "MCU":
-            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup", "build_conf" ]
+            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup"]
             legal_hw = ["serie", "board", "stlink_serial_number"]
+            # Append additional items if board is "NUCLEO-N657X0-Q"
+            if cfg.deployment.hardware_setup.board == "NUCLEO-N657X0-Q":
+                legal_hw += ["output"]
         else:
             legal = ["c_project_path", "board_deploy_path", "verbosity", "hardware_setup"]
             legal_hw = ["serie", "board", "ip_address", "stlink_serial_number"]

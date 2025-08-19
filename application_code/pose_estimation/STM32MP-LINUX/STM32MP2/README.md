@@ -28,7 +28,7 @@ In order to run this pose estimation application examples you need to have the f
 
 Only this hardware is supported for now
 
-On software side, this getting started needs [X-LINUX-AI](https://www.st.com/en/embedded-software/x-linux-ai.html) expansion package for OpenSTLinux version `v5.1.0`.
+On software side, this getting started needs [X-LINUX-AI](https://www.st.com/en/embedded-software/x-linux-ai.html) expansion package for OpenSTLinux version `v6.1.0`.
 
 ![X-LINUX-AI](../_htmresc/X-LINUX-AI-logo.png)
 
@@ -45,7 +45,7 @@ For STM32MPU, application code example is provided as python script to facilitat
 
 You should use the deploy.py script to automatically deploy the program on the target (if the hardware is connected to the network).
 
-The [deployment script](../../../../pose_estimation/deployment/README_MPU.md) of the model zoo is used to directly populate the target with all the needed files, resources and NN model. The script use
+The [deployment script](../../../../pose_estimation/docs/README_DEPLOYMENT_MPU.md) of the model zoo is used to directly populate the target with all the needed files, resources and NN model. The script use
 the IP address provided in the configuration yaml file. The application source code is available `Application\` directory and can be modified easily.
 
 ### __Deploy NN model__
@@ -99,4 +99,4 @@ By default the interpolation type used for resizing the input image is simple bi
 
 ## __Limitations__
 
-- Supports only X-LINUX-AI latest version v5.1.0.
+- Supports only X-LINUX-AI latest version v6.1.0.

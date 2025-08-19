@@ -168,6 +168,10 @@ def _evaluate_quantized_model(cfg: DictConfig,
             if "gen_npy_output" in cfg.evaluation and cfg.evaluation.gen_npy_output==True:
                 predictions_all.append(predictions)
 
+        # The TFLITE version of yolov8 has channel-first outputs
+        if model_family(cfg.general.model_type) in ["yolo_v8"]:
+            predictions = tf.transpose(predictions, perm=[0, 2, 1])
+
         # Decode and NMS the detections
         boxes, scores, classes = get_nmsed_detections(cfg, predictions, image_size)
 
@@ -256,6 +260,15 @@ def _evaluate_onnx_model(cfg: DictConfig, model_path: str, num_classes: int = No
             data        = ai_interp_input_quant(ai_runner_interpreter,images,cfg.preprocessing.rescaling.scale,cfg.preprocessing.rescaling.offset,'.onnx')
             predictions = ai_runner_invoke(data,ai_runner_interpreter)
             predictions = ai_interp_outputs_dequant(ai_runner_interpreter,predictions)
+
+        # SSD models outputs are still channel-last after h5->onnx conversion
+        if model_family(cfg.general.model_type) not in ["ssd"]:
+            # For each output of the model make it channel-last instead of channel-first
+            for p in range(len(predictions)):
+                if len(predictions[p].shape)==3:
+                    predictions[p] = tf.transpose(predictions[p],[0,2,1])
+                elif len(predictions[p].shape)==4:
+                    predictions[p] = tf.transpose(predictions[p],[0,2,3,1])
 
         if len(predictions) == 1:
             predictions = predictions[0]

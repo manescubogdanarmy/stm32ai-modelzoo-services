@@ -24,7 +24,8 @@
 #include "app_fuseprogramming.h"
 #include "stm32_lcd_ex.h"
 #include "app_postprocess.h"
-#include "ll_aton_runtime.h"
+#include "ll_aton_rt_user_api.h"
+LL_ATON_DECLARE_NAMED_NN_INSTANCE_AND_INTERFACE(Default);
 #include "app_camerapipeline.h"
 #include "main.h"
 #include <stdio.h>
@@ -92,14 +93,14 @@ const uint32_t colors[NUMBER_COLORS] = {
 };
 
 #if POSTPROCESS_TYPE == POSTPROCESS_ISEG_YOLO_V8_UI
-yolov8_seg_pp_static_param_t pp_params;
+  iseg_yolov8_pp_static_param_t pp_params;
 #else
-    #error "PostProcessing type not supported"
+  #error "PostProcessing type not supported"
 #endif
 
 volatile int32_t cameraFrameReceived;
 uint8_t *nn_in;
-iseg_postprocess_out_t pp_output;
+iseg_pp_out_t pp_output;
 
 #define ALIGN_TO_16(value) (((value) + 15) & ~15)
 
@@ -128,13 +129,14 @@ static uint8_t screen_buffer[LCD_FG_WIDTH * LCD_FG_HEIGHT * 2];
 static void SystemClock_Config(void);
 static void NPURam_enable(void);
 static void NPUCache_config(void);
-static void Display_NetworkOutput(iseg_postprocess_out_t *p_postprocess, uint32_t inference_ms);
+static void Display_NetworkOutput(iseg_pp_out_t *p_postprocess, uint32_t inference_ms);
 static void Display_init(void);
 static void Security_Config(void);
 static void set_clk_sleep_mode(void);
 static void IAC_Config(void);
 static void Display_WelcomeScreen(void);
 static void Hardware_init(void);
+static void Run_Inference(void);
 static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *number_output, int32_t nn_out_len[]);
 
 
@@ -154,11 +156,10 @@ int main(void)
   int number_output = 0;
   float32_t *nn_out[MAX_NUMBER_OUTPUT];
   int32_t nn_out_len[MAX_NUMBER_OUTPUT];
-  LL_ATON_DECLARE_NAMED_NN_INSTANCE_AND_INTERFACE(Default);
   NeuralNetwork_init(&nn_in_len, nn_out, &number_output, nn_out_len);
 
   /*** Post Processing Init ***************************************************/
-  app_postprocess_init(&pp_params);
+  app_postprocess_init(&pp_params, &NN_Instance_Default);
 
   /*** Camera Init ************************************************************/
   CameraPipeline_Init((uint32_t *[2]) {&lcd_bg_area.XSize, &lcd_fg_area.XSize}, (uint32_t *[2]) {&lcd_bg_area.YSize, &lcd_fg_area.YSize}, &pitch_nn);
@@ -203,7 +204,7 @@ int main(void)
 
     ts[0] = HAL_GetTick();
     /* run ATON inference */
-    LL_ATON_RT_Main(&NN_Instance_Default);
+    Run_Inference();
     ts[1] = HAL_GetTick();
 
     int32_t ret = app_postprocess_run((void **) nn_out, number_output, &pp_output, &pp_params);
@@ -262,10 +263,27 @@ static void Hardware_init(void)
 
 }
 
+static void Run_Inference(void) {
+  LL_ATON_RT_RetValues_t ll_aton_rt_ret;
+
+  do
+  {
+    ll_aton_rt_ret = LL_ATON_RT_RunEpochBlock(&NN_Instance_Default);
+
+    /* Wait for next event */
+    if (ll_aton_rt_ret == LL_ATON_RT_WFE)
+    {
+      LL_ATON_OSAL_WFE();
+    }
+  } while (ll_aton_rt_ret != LL_ATON_RT_DONE);
+
+  LL_ATON_RT_Reset_Network(&NN_Instance_Default);
+}
+
 static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *number_output, int32_t nn_out_len[])
 {
-  const LL_Buffer_InfoTypeDef *nn_in_info = LL_ATON_Input_Buffers_Info_Default();
-  const LL_Buffer_InfoTypeDef *nn_out_info = LL_ATON_Output_Buffers_Info_Default();
+  const LL_Buffer_InfoTypeDef *nn_in_info = LL_ATON_Input_Buffers_Info(&NN_Instance_Default);
+  const LL_Buffer_InfoTypeDef *nn_out_info = LL_ATON_Output_Buffers_Info(&NN_Instance_Default);
 
   // Get the input buffer address
   nn_in = (uint8_t *) LL_Buffer_addr_start(&nn_in_info[0]);
@@ -285,6 +303,9 @@ static void NeuralNetwork_init(uint32_t *nnin_length, float32_t *nn_out[], int *
   }
 
   *nnin_length = LL_Buffer_len(&nn_in_info[0]);
+
+  LL_ATON_RT_RuntimeInit();
+  LL_ATON_RT_Init_Network(&NN_Instance_Default);
 }
 
 static void NPURam_enable(void)
@@ -386,11 +407,14 @@ void IAC_IRQHandler(void)
 * @param p_postprocess pointer to postprocessing output
 * @param inference_ms inference time in ms
 */
-static void Display_NetworkOutput(iseg_postprocess_out_t *p_postprocess, uint32_t inference_ms)
+static void Display_NetworkOutput(iseg_pp_out_t *p_postprocess, uint32_t inference_ms)
 {
-
-  iseg_postprocess_outBuffer_t *rois = p_postprocess->pOutBuff;
+  iseg_pp_outBuffer_t *rois = p_postprocess->pOutBuff;
   uint32_t nb_rois = p_postprocess->nb_detect;
+  uint32_t x0[AI_YOLOV8_SEG_PP_MAX_BOXES_LIMIT];
+  uint32_t y0[AI_YOLOV8_SEG_PP_MAX_BOXES_LIMIT];
+  uint32_t width[AI_YOLOV8_SEG_PP_MAX_BOXES_LIMIT];
+  uint32_t height[AI_YOLOV8_SEG_PP_MAX_BOXES_LIMIT];
   int ret;
 
   __disable_irq();
@@ -402,35 +426,37 @@ static void Display_NetworkOutput(iseg_postprocess_out_t *p_postprocess, uint32_
   UTIL_LCD_FillRect(0, 0, lcd_fg_area.XSize, lcd_fg_area.YSize, UTIL_LCD_COLOR_TRANSPARENT); /* Clear previous boxes */
   for (int32_t i = 0; i < nb_rois; i++)
   {
-    /* Display mask */
+    /* Box dimensions */
+    x0[i] = (uint32_t) ((rois[i].x_center - rois[i].width / 2) * ((float32_t) lcd_bg_area.XSize)) + lcd_bg_area.X0;
+    y0[i] = (uint32_t) ((rois[i].y_center - rois[i].height / 2) * ((float32_t) lcd_bg_area.YSize)) + lcd_bg_area.Y0;
+    width[i] = (uint32_t) (rois[i].width * ((float32_t) lcd_bg_area.XSize));
+    height[i] = (uint32_t) (rois[i].height * ((float32_t) lcd_bg_area.YSize));
+    /* Clamp box to image dimensions */
+    x0[i] = x0[i] < lcd_bg_area.X0 + lcd_bg_area.XSize ? x0[i] : lcd_bg_area.X0 + lcd_bg_area.XSize - 1;
+    y0[i] = y0[i] < lcd_bg_area.Y0 + lcd_bg_area.YSize ? y0[i] : lcd_bg_area.Y0 + lcd_bg_area.YSize  - 1;
+    width[i] = ((x0[i] + width[i]) < lcd_bg_area.X0 + lcd_bg_area.XSize) ? width[i] : (lcd_bg_area.X0 + lcd_bg_area.XSize - x0[i] - 1);
+    height[i] = ((y0[i] + height[i]) < lcd_bg_area.Y0 + lcd_bg_area.YSize) ? height[i] : (lcd_bg_area.Y0 + lcd_bg_area.YSize - y0[i] - 1);
+    /* Display mask bounded by the corresponding box */
     for (int x = 0; x < AI_YOLOV8_SEG_PP_MASK_SIZE; x++)
-    {
       for (int y = 0; y < AI_YOLOV8_SEG_PP_MASK_SIZE; y++)
-      {
-        if (rois[i].pMask[y * AI_YOLOV8_SEG_PP_MASK_SIZE + x] > 0.1f)
+        if ((rois[i].pMask[y * AI_YOLOV8_SEG_PP_MASK_SIZE + x]) && (AI_YOLOV8_SEG_PP_CONF_THRESHOLD <= rois[i].conf) &&
+            (lcd_bg_area.X0 + x * lcd_bg_area.XSize / AI_YOLOV8_SEG_PP_MASK_SIZE < x0[i] + width[i]) &&
+            (lcd_bg_area.Y0 + y * lcd_bg_area.YSize / AI_YOLOV8_SEG_PP_MASK_SIZE < y0[i] + height[i]) &&
+            (x0[i] < lcd_bg_area.X0 + (x + 1) * lcd_bg_area.XSize / AI_YOLOV8_SEG_PP_MASK_SIZE + 1) &&
+            (y0[i] < lcd_bg_area.Y0 + (y + 1) * lcd_bg_area.YSize / AI_YOLOV8_SEG_PP_MASK_SIZE + 1))
           UTIL_LCD_FillRect((uint32_t) x * lcd_bg_area.XSize / AI_YOLOV8_SEG_PP_MASK_SIZE,
                             (uint32_t) y * lcd_bg_area.YSize / AI_YOLOV8_SEG_PP_MASK_SIZE,
                             (uint32_t) lcd_bg_area.XSize / AI_YOLOV8_SEG_PP_MASK_SIZE + 1,
                             (uint32_t) lcd_bg_area.YSize / AI_YOLOV8_SEG_PP_MASK_SIZE + 1,
-                            colors[i % NUMBER_COLORS] & 0x40ffffff);
-      }
-    }
+                            colors[rois[i].class_index % NUMBER_COLORS] & 0x40ffffff);
   }
   for (int32_t i = 0; i < nb_rois; i++)
-  {
-    /* Display box */
-    uint32_t x0 = (uint32_t) ((rois[i].x_center - rois[i].width / 2) * ((float32_t) lcd_bg_area.XSize));
-    uint32_t y0 = (uint32_t) ((rois[i].y_center - rois[i].height / 2) * ((float32_t) lcd_bg_area.YSize));
-    uint32_t width = (uint32_t) (rois[i].width * ((float32_t) lcd_bg_area.XSize));
-    uint32_t height = (uint32_t) (rois[i].height * ((float32_t) lcd_bg_area.YSize));
-    /* Draw boxes without going outside of the image */
-    x0 = x0 < lcd_bg_area.XSize ? x0 : lcd_bg_area.XSize - 1;
-    y0 = y0 < lcd_bg_area.YSize ? y0 : lcd_bg_area.YSize  - 1;
-    width = ((x0 + width) < lcd_bg_area.XSize) ? width : (lcd_bg_area.XSize - x0 - 1);
-    height = ((y0 + height) < lcd_bg_area.YSize) ? height : (lcd_bg_area.YSize - y0 - 1);
-    UTIL_LCD_DrawRect(x0, y0, width, height, colors[i % NUMBER_COLORS]);
-    UTIL_LCDEx_PrintfAt(x0, y0, LEFT_MODE, classes_table[rois[i].class_index]);
-  }
+   if (AI_YOLOV8_SEG_PP_CONF_THRESHOLD <= rois[i].conf)
+   {
+     /* Display boxes */
+      UTIL_LCD_DrawRect(x0[i], y0[i], width[i], height[i], colors[rois[i].class_index % NUMBER_COLORS]);
+      UTIL_LCDEx_PrintfAt(x0[i], y0[i], LEFT_MODE, classes_table[rois[i].class_index]);
+    }
 
   UTIL_LCD_SetBackColor(0x40000000);
   UTIL_LCDEx_PrintfAt(0, LINE(0), CENTER_MODE, "Objects %u", nb_rois);

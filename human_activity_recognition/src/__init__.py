@@ -12,7 +12,7 @@ __all__ = [
             "preprocessing",
             "models",
             "evaluation", 
-            "benchmarking",
+            "deployment",
 ]
 
 

@@ -30,7 +30,7 @@ from src.preprocessing import preprocess
 from src.utils import get_config
 from src.training import train
 from src.evaluation import evaluate
-from deployment import deploy
+from src.deployment import deploy
 from typing import Optional
 
 

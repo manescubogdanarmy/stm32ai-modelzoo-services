@@ -11,7 +11,7 @@
 #   If no LICENSE file comes with this software, it is provided AS-IS.
 ###################################################################################
 
-NANOPB_DIR ?= "C:\local\tools\nanopb\generator-bin"
+NANOPB_DIR ?= "C:\nanopb\generator-bin"
 C_INSTALL_ROOT_DIR ?= "D:\dev\stm.ai\new_root\targets\common\EmbedNets\stm32\Nucleo-App\Middlewares\ST\Application\Validation"
 
 

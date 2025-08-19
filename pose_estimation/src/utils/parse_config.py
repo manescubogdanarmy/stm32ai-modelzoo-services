@@ -253,8 +253,8 @@ def get_config(config_data: DictConfig) -> DefaultMunch:
 
     # Quantization section parsing
     if cfg.operation_mode in mode_groups.quantization:
-        legal = ["quantizer", "quantization_type", "quantization_input_type",
-                "quantization_output_type", "granularity", "export_dir", "optimize"]
+        legal = ["quantizer", "quantization_type", "quantization_input_type", "quantization_output_type", 
+                 "granularity", "export_dir", "optimize", 'target_opset']
         parse_quantization_section(cfg.quantization,
                                    legal=legal)
 
@@ -295,8 +295,11 @@ def get_config(config_data: DictConfig) -> DefaultMunch:
     # Deployment section parsing
     if cfg.operation_mode in mode_groups.deployment:
         if cfg.hardware_type == "MCU":
-            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup", "build_conf"]
+            legal = ["c_project_path", "IDE", "verbosity", "hardware_setup"]
             legal_hw = ["serie", "board", "stlink_serial_number"]
+            # Append additional items if board is "NUCLEO-N657X0-Q"
+            if cfg.deployment.hardware_setup.board == "NUCLEO-N657X0-Q":
+                legal_hw += ["output"]
             parse_deployment_section(cfg.deployment,
                                     legal=legal,
                                     legal_hw=legal_hw)

@@ -18,7 +18,7 @@ import onnxruntime
 from hydra.core.hydra_config import HydraConfig
 
 from common.utils import get_model_name_and_its_input_shape, ai_runner_interp, ai_interp_input_quant, ai_interp_outputs_dequant
-from src.utils import ai_runner_invoke, skeleton_connections_dict
+from src.utils import ai_runner_invoke, skeleton_connections_dict, stm32_to_opencv_colors_dict
 from src.postprocessing  import spe_postprocess, heatmaps_spe_postprocess, yolo_mpe_postprocess, hand_landmarks_postprocess, head_landmarks_postprocess
 
 
@@ -35,7 +35,7 @@ def _load_test_data(directory: str):
     annotation_lines = []
     path = directory+'/'
     for file in os.listdir(path):
-        if file.endswith(".jpg"):
+        if file.endswith(".jpg") or file.endswith(".png"):
             new_path = path+file
             annotation_lines.append(new_path)
     return annotation_lines
@@ -54,6 +54,9 @@ def predict(cfg):
     model_path = cfg.general.model_path
     model_type = cfg.general.model_type
     class_name = cfg.dataset.class_names[0] if cfg.dataset.class_names is not None else 'None'
+
+    skeleton_connections = []
+    
     if cfg.prediction and cfg.prediction.target:
         target = cfg.prediction.target
     else:
@@ -97,13 +100,11 @@ def predict(cfg):
     else:
         print("no test set found")
 
-    kpts_nbr = cfg.dataset.keypoints
-
     prediction_result_dir = f'{cfg.output_dir}/predictions/'
     os.makedirs(prediction_result_dir, exist_ok=True)
 
-    for image_file in test_annotations:
-        if image_file.endswith(".jpg"):
+    for img_id, image_file in enumerate(test_annotations):
+        if image_file.endswith(".jpg") or file.endswith(".png"):
             
             print('Inference on image : ',image_file)
 
@@ -166,6 +167,11 @@ def predict(cfg):
                     data        = ai_interp_input_quant(ai_runner_interpreter,image_processed,cfg.preprocessing.rescaling.scale, cfg.preprocessing.rescaling.offset,'.onnx')
                     predictions = ai_runner_invoke(data,ai_runner_interpreter)
                     predictions = ai_interp_outputs_dequant(ai_runner_interpreter,predictions)
+                for indp in range(len(predictions)):
+                    if len(predictions[indp].shape)==3:
+                        predictions[indp] = tf.transpose(predictions[indp],[0,2,1])
+                    elif len(predictions[indp].shape)==4:
+                        predictions[indp] = tf.transpose(predictions[indp],[0,2,3,1])
 
             if Path(model_path).suffix == '.h5':
                 predictions_tensor = predictions
@@ -186,19 +192,16 @@ def predict(cfg):
                                              score_threshold = cfg.postprocessing.confidence_thresh)[0]
             elif model_type=='hand_spe':
                 poses,norm_poses,htype,hprob = hand_landmarks_postprocess(predictions_tensor)
+            elif model_type=='head_spe':
+                poses = head_landmarks_postprocess(predictions_tensor)
             else:
                 print('No post-processing found for the model type : '+model_type)
-
-            try:
-                skeleton_connections = skeleton_connections_dict[class_name][kpts_nbr]
-            except:
-                print('Skeleton for the class [{}] & number of keypoints [{}] is unknown -> use [hand] & [21] or [person] & ([17] or [13])'.format(class_name,kpts_nbr))
-                print('You can add your own in the utils/connections.py file')
-                skeleton_connections = []
 
             threshSkeleton = cfg.postprocessing.kpts_conf_thresh
 
             bbox_thick = int(0.6 * (height + width) / 600)
+
+            radius = 3
 
             for ids,p in enumerate(poses):
                 if model_type in ['heatmaps_spe','spe']:
@@ -211,7 +214,16 @@ def predict(cfg):
                     x2 = int(np.max(xx)*width)
                     y1 = int(np.min(yy)*height)
                     y2 = int(np.max(yy)*height)
-                elif model_type=='yolo_mpe':
+                elif model_type == 'head_spe':
+                    radius = 1
+                    xx = p[0::2]/input_shape[0]
+                    yy = p[1::2]/input_shape[0]
+                    pp = tf.ones_like(xx)
+                    x1 = int(np.min(xx)*width)
+                    x2 = int(np.max(xx)*width)
+                    y1 = int(np.min(yy)*height)
+                    y2 = int(np.max(yy)*height)
+                elif model_type == 'yolo_mpe':
                     x,y,w,h,conf = p[:5]
                     xx, yy, pp = p[5::3],p[5+1::3],p[5+2::3]
                     if Path(model_path).suffix == '.onnx':
@@ -225,16 +237,28 @@ def predict(cfg):
                     x2 = int((x + w/2)*width)
                     y1 = int((y - h/2)*height)
                     y2 = int((y + h/2)*height)
+                
+                if img_id==0:
+
+                    kpts_nbr = cfg.dataset.keypoints if (cfg.dataset.keypoints is not None and cfg.dataset.keypoints==len(xx)) else len(xx)
+
+                    try:
+                        skeleton_connections = skeleton_connections_dict[class_name][kpts_nbr]
+                    except:
+                        list_of_connections=''
+                        for s in skeleton_connections_dict : list_of_connections += s+": "+str(list(skeleton_connections_dict[s].keys()))+" | "
+                        print(f'Skeleton for the class [{class_name}] & number of keypoints [{kpts_nbr}] is unknown -> use {list_of_connections[:-2]}')
+                        print('You can add your own in the utils/connections.py file')
 
                 if not tf.reduce_all(tf.constant(pp)==0):
                     for i in range(0,len(xx)):
                         if float(pp[i])>threshSkeleton:
-                            cv2.circle(image,(int(xx[i]*width),int(yy[i]*height)),radius=5,color=(0, 0, 255), thickness=-1)
+                            cv2.circle(image,(int(xx[i]*width),int(yy[i]*height)),radius=radius,color=(255, 255, 255), thickness=-1)
                         else:
-                            cv2.circle(image,(int(xx[i]*width),int(yy[i]*height)),radius=5,color=(255, 0, 0), thickness=-1)
-                    for k,l in skeleton_connections:
+                            cv2.circle(image,(int(xx[i]*width),int(yy[i]*height)),radius=radius,color=(255, 0, 0), thickness=-1)
+                    for k,l,color in skeleton_connections:
                         if float(pp[k])>threshSkeleton and float(pp[l])>threshSkeleton: 
-                            cv2.line(image,(int(xx[k]*width),int(yy[k]*height)),(int(xx[l]*width),int(yy[l]*height)),(0, 255, 0))
+                            cv2.line(image,(int(xx[k]*width),int(yy[k]*height)),(int(xx[l]*width),int(yy[l]*height)),stm32_to_opencv_colors_dict[color])
 
                 if model_type=='yolo_mpe':
                     btext = '{}-{:.2f}'.format(class_name,conf)

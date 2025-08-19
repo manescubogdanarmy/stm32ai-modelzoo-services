@@ -18,6 +18,7 @@ import numpy as np
 import tensorflow as tf
 
 from common.utils import aspect_ratio_dict, color_mode_n6_dict
+from .connections import skeleton_connections_dict
 
 
 def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = None) -> None:
@@ -38,6 +39,7 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
     input_details = interpreter_quant.get_input_details()[0]
     output_details = interpreter_quant.get_output_details()[0]
     input_shape = input_details['shape']
+    class_name = config.dataset.class_names[0] if config.dataset.class_names is not None else 'None'
 
     path = os.path.join(HydraConfig.get().runtime.output_dir, "C_header/")
 
@@ -69,7 +71,8 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         f.write("/* ---------------    Generated code    ----------------- */\n")
         f.write("#ifndef APP_CONFIG\n")
         f.write("#define APP_CONFIG\n\n")
-        f.write('#include "arm_math.h"\n\n')
+        f.write('#include "arm_math.h"\n')
+        f.write('#include "stm32_lcd.h"\n\n')
         f.write("#define USE_DCACHE\n\n")
         f.write("/*Defines: CMW_MIRRORFLIP_NONE; CMW_MIRRORFLIP_FLIP; CMW_MIRRORFLIP_MIRROR; CMW_MIRRORFLIP_FLIP_MIRROR;*/\n")
         f.write("#define CAMERA_FLIP CMW_MIRRORFLIP_NONE\n\n")
@@ -83,11 +86,11 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         f.write("/* Postprocessing type configuration */\n")
 
         if params.general.model_type == "heatmaps_spe":
-            f.write("#define POSTPROCESS_TYPE POSTPROCESS_SPE_MOVENET_UF\n\n")
+            f.write("#define POSTPROCESS_TYPE POSTPROCESS_SPE_MOVENET_UI\n\n")
         elif params.general.model_type == "yolo_mpe":
-            f.write("#define POSTPROCESS_TYPE POSTPROCESS_MPE_YOLO_V8_UF\n\n")
+            f.write("#define POSTPROCESS_TYPE POSTPROCESS_MPE_YOLO_V8_UI\n\n")
         else:
-            raise TypeError("please select one supported post processing options: heatmaps_spe or yolo_mpe")
+            raise TypeError("Please select one of the supported post processing options: heatmaps_spe or yolo_mpe")
 
         f.write("#define NN_HEIGHT     ({})\n".format(int(input_shape[1])))
         f.write("#define NN_WIDTH      ({})\n".format(int(input_shape[2])))
@@ -96,28 +99,43 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         f.write("#define COLOR_BGR (0)\n")
         f.write("#define COLOR_RGB (1)\n")
         f.write("#define COLOR_MODE    {}\n".format(color_mode_n6_dict[params.preprocessing.color_mode]))
+        f.write("\n/* Post processing values */\n")
 
         if params.general.model_type == "heatmaps_spe":
-            f.write("\n/* Post processing values */\n")
-            f.write("#define AI_POSE_PP_CONF_THRESHOLD              ({})\n".format(float(params.postprocessing.kpts_conf_thresh)))
-            f.write("#define AI_POSE_PP_POSE_KEYPOINTS_NB           ({})\n".format(int(output_details['shape'][3])))
+            nb_kpt = int(output_details['shape'][3])
+            f.write("#define AI_POSE_PP_CONF_THRESHOLD                    ({})\n".format(float(params.postprocessing.kpts_conf_thresh)))
+            f.write("#define AI_POSE_PP_POSE_KEYPOINTS_NB                 ({})\n".format(nb_kpt))
             f.write("#define AI_SPE_MOVENET_POSTPROC_HEATMAP_WIDTH        (NN_WIDTH/4)\n")
             f.write("#define AI_SPE_MOVENET_POSTPROC_HEATMAP_HEIGHT       (NN_HEIGHT/4)\n")
-            f.write("#define AI_SPE_MOVENET_POSTPROC_NB_KEYPOINTS         (AI_POSE_PP_POSE_KEYPOINTS_NB)        /* Only 13 and 17 keypoints are supported for the skeleton reconstruction */\n\n")
+            f.write("#define AI_SPE_MOVENET_POSTPROC_NB_KEYPOINTS         (AI_POSE_PP_POSE_KEYPOINTS_NB)\n\n")
         elif params.general.model_type == "yolo_mpe":
             out_shape = output_details["shape"]
-            nb_kpt = (out_shape[1]-5)/3
-            f.write("\n/* Post processing values */\n")
-            f.write("#define AI_MPE_YOLOV8_PP_NB_CLASSES (1)\n")
-            f.write("#define AI_MPE_YOLOV8_PP_TOTAL_BOXES ({})\n".format(int(out_shape[2])))
-            f.write("#define AI_MPE_YOLOV8_PP_MAX_BOXES_LIMIT ({})\n".format(int(params.postprocessing.max_detection_boxes)))
-            f.write("#define AI_MPE_YOLOV8_PP_IOU_THRESHOLD ({})\n".format(float(params.postprocessing.NMS_thresh)))
-            f.write("#define AI_MPE_YOLOV8_PP_CONF_THRESHOLD ({})\n\n".format(float(params.postprocessing.confidence_thresh)))
-
-            f.write("#define AI_POSE_PP_CONF_THRESHOLD              ({})\n".format(float(params.postprocessing.kpts_conf_thresh)))
-            f.write("#define AI_POSE_PP_POSE_KEYPOINTS_NB           ({})\n".format(int(nb_kpt)))
+            nb_kpt = params.dataset.keypoints
+            f.write("#define AI_POSE_PP_CONF_THRESHOLD                    ({})\n".format(float(params.postprocessing.kpts_conf_thresh)))
+            f.write("#define AI_POSE_PP_POSE_KEYPOINTS_NB                 ({})\n".format(int(nb_kpt)))
+            f.write("#define AI_MPE_YOLOV8_PP_NB_CLASSES                  (1)\n")
+            f.write("#define AI_MPE_YOLOV8_PP_TOTAL_BOXES                 ({})\n".format(int(out_shape[2])))
+            f.write("#define AI_MPE_YOLOV8_PP_MAX_BOXES_LIMIT             ({})\n".format(int(params.postprocessing.max_detection_boxes)))
+            f.write("#define AI_MPE_YOLOV8_PP_IOU_THRESHOLD               ({})\n".format(float(params.postprocessing.NMS_thresh)))
+            f.write("#define AI_MPE_YOLOV8_PP_CONF_THRESHOLD              ({})\n\n".format(float(params.postprocessing.confidence_thresh)))
         else:
             raise ValueError("model_type not supported")
+
+        try:
+            skeleton_connections = skeleton_connections_dict[class_name][nb_kpt]
+        except:
+            print('Skeleton for the class [{}] & number of keypoints [{}] is unknown -> use [hand] & [21] or [person] & ([17] or [13])'.format(class_name,nb_kpt))
+            print('You can add your own in the utils/connections.py file')
+            skeleton_connections = None
+
+        if skeleton_connections:
+            f.write("static const int bindings[][3] = {\n")
+            for i in range(len(skeleton_connections)):
+                f.write("    {{ {}, {}, {} }},\n".format(skeleton_connections[i][0], skeleton_connections[i][1], skeleton_connections[i][2]))
+            f.write("};\n\n")
+        else:
+            f.write("static const int **bindings = NULL;\n\n")
+
         f.write('/* Display */\n')
         f.write('#define WELCOME_MSG_0       "Single/multi pose estimation - Hand landmark"\n')
         f.write('#define WELCOME_MSG_1       "{}"\n'.format(os.path.basename(params.general.model_path)))

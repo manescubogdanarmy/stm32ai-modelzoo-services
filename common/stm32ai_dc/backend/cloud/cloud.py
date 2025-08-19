@@ -33,11 +33,13 @@ class CloudBackend(Stm32AiBackend):
             password: str, 
             version: typing.Union[str, None] = None,
             platform: BackendVersionType = BackendVersionType.STM32,
+            silent = False,
         ) -> None:
         self.username = username
         self.password = password
         self.version = version
         self.supportedVersions = get_supported_versions()
+        self.silent = silent
         self.login_service = LoginService()
         try:
             user_version = next(x for x in self.supportedVersions if x.get('platform',{}).get(platform, x['version']) == version)
@@ -82,9 +84,9 @@ class CloudBackend(Stm32AiBackend):
                 details='Please check your credentials')
 
         self.user_service = UserService(self.auth_token)
-        self.stm32ai_service = Stm32AiService(self.auth_token, self.version)
+        self.stm32ai_service = Stm32AiService(self.auth_token, self.version, self.silent)
         self.file_service = FileService(self.auth_token)
-        self.benchmark_service = BenchmarkService(self.auth_token)
+        self.benchmark_service = BenchmarkService(self.auth_token, self.silent)
         self.generate_nbg_service = GenerateNbgService(self.auth_token)
 
     def get_user(self):
@@ -328,9 +330,19 @@ class CloudBackend(Stm32AiBackend):
                 internal_ram_consumption=functools.reduce(lambda a, b: a + b.get("used_size_bytes", 0), internal_memory_pools, 0)
                 external_ram_consumption=functools.reduce(lambda a, b: a + b.get("used_size_bytes", 0), external_memory_pools, 0)
                 benchmark_result = BenchmarkResult(
-                    rom_size=memory_footprint['weights'],
+                    activations_size=memory_footprint.get('activations', 0),
+                    weights=memory_footprint.get('weights', 0),
+                    rom_size=memory_footprint.get('weights', 0)
+                        + memory_footprint.get('kernel_flash', 0)
+                        + memory_footprint.get('toolchain_flash', 0),
+                    ram_size=memory_footprint.get('activations', 0)
+                        + functools.reduce(
+                            lambda a, b: a+b,
+                            memory_footprint.get('io', []), 0)
+                        + memory_footprint.get('kernel_ram', 0)
+                        + memory_footprint.get('toolchain_ram',
+                                    memory_footprint.get('extra_ram', 0)),
                     macc=functools.reduce(lambda a, b: a+b, map(lambda a: a['macc'], cinfo_graph['nodes']), 0),
-                    ram_size=memory_footprint['activations'],
                     total_ram_io_size=functools.reduce(
                         lambda a, b: a+b,
                         memory_footprint['io'], 0),
@@ -393,6 +405,8 @@ class CloudBackend(Stm32AiBackend):
                 internal_flash_usage = functools.reduce(lambda a, b: a+b, map(lambda a: c_arrays.get(a + "_array").get('c_size_in_byte'), layers_in_internal_flash), 0)
                 external_flash_usage = functools.reduce(lambda a, b: a+b, map(lambda a: c_arrays.get(a + "_array").get('c_size_in_byte'), layers_in_external_flash), 0)
                 benchmark_result = BenchmarkResult(
+                    activations_size=memory_footprint.get('activations', 0),
+                    weights=memory_footprint.get('weights', 0),
                     rom_size=report['rom_size'],
                     macc=report['rom_n_macc'],
                     ram_size=report['ram_size'][0],

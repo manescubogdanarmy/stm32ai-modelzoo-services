@@ -193,10 +193,11 @@ class SocketHwDriver(AiHwDriver):
         res = self._hdl.sendall(data)
         return len(data) if res is None else 0
 
-    def short_desc(self):
+    def short_desc(self, full: bool = True):
         """Report a human description of the connection state"""  # noqa: DAR101,DAR201,DAR401
         desc = 'SOCKET:' + str(self._hostname) + ':' + str(self._port)
-        desc += ':connected' if self.is_connected else ':not connected'
+        if full:
+            desc += ':connected' if self.is_connected else ':not connected'
         return desc
 
 

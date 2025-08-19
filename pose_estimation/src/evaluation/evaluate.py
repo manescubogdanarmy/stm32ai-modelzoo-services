@@ -133,6 +133,10 @@ def evaluate(cfg: DictConfig = None, eval_ds: tf.data.Dataset = None,
                 data        = ai_interp_input_quant(ai_runner_interpreter,t_images,cfg.preprocessing.rescaling.scale, cfg.preprocessing.rescaling.offset,'.onnx')
                 predictions = ai_runner_invoke(data,ai_runner_interpreter)
                 predictions = ai_interp_outputs_dequant(ai_runner_interpreter,predictions)[0]
+            if len(predictions.shape)==3:
+                predictions = tf.transpose(predictions,[0,2,1])
+            elif len(predictions.shape)==4:
+                predictions = tf.transpose(predictions,[0,2,3,1])
 
         predictions = tf.cast(predictions,tf.float32)
 

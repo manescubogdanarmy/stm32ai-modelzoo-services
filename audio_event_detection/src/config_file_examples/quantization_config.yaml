@@ -17,10 +17,6 @@ dataset:
   name: esc10
   class_names: ['dog', 'chainsaw', 'crackling_fire', 'helicopter', 'rain', 'crying_baby', 'clock_tick', 'sneezing', 'rooster', 'sea_waves']
   file_extension: '.wav'
-
-  # Note : It is not strictly necessary to provide a quantization dataset, but not doing so 
-  # can greatly reduce quantized model performance
-
   quantization_audio_path: ./datasets/ESC-50/audio 
   quantization_csv_path: ./datasets/ESC-50/meta/esc50.csv
   quantization_split: 0.1 # Optional

@@ -37,9 +37,11 @@ enum EnumVersion {
 enum EnumLowLevelIO { // HOST point of view definition
     option allow_alias = true;
 	IO_HEADER_EOM_FLAG = 128;  // End-of-message flag (1 << 7)
-	IO_HEADER_SIZE_MSK = 127;  // Max payload size = 127/0x7F 
+	IO_HEADER_SIZE_MSK = 32767;
 	IO_IN_PACKET_SIZE = 32;
 	IO_OUT_PACKET_SIZE = 32;
+	IO_IN_PACKET_SIZE_LARGE = 4094;
+	IO_OUT_PACKET_SIZE_LARGE = 4094;
 	IO_OUT_SYNC = 170;         // Byte sync for SW control flow (READ mode) - 0xAA	
 }
 
@@ -309,7 +311,8 @@ message sysinfoMsg {
 	required uint32 sclock = 2;                // main clock frequency (MCU frequency)
 	required uint32 hclock = 3;                // secondary clock frequency (System bus frequency)
 	required uint32 cache = 4;                 // device dependent
-	repeated uint32 extra = 5;                 // device dependent
+	required uint32 com_param = 5;             // packet size
+	repeated uint32 extra = 6;                 // device dependent
 }
 
 // Ack message and Sub RESP message (HOST to STM32 & STM32 to HOST)

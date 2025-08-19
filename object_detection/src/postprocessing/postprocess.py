@@ -148,15 +148,119 @@ def decode_yolo_predictions(predictions, num_classes, anchors, image_size):
     return boxes, scores
 
 def decode_yolo_v8_predictions(predictions):
-    transposed_detections = tf.transpose(predictions, perm=[0, 2, 1])
-    x = transposed_detections[..., 0]
-    y = transposed_detections[..., 1]
-    w = transposed_detections[..., 2]
-    h = transposed_detections[..., 3]
+    x = predictions[..., 0]
+    y = predictions[..., 1]
+    w = predictions[..., 2]
+    h = predictions[..., 3]
     boxes = tf.stack([x - w/2, y - h/2, x + w/2, y + h/2], axis=-1)
     boxes = tf.clip_by_value(boxes, 0, 1)
-    scores = transposed_detections[..., 4:]
+    scores = predictions[..., 4:]
     return boxes, scores
+
+def _ssd_generate_anchors(opts):
+    """This is a trimmed down version of the C++ code; all irrelevant parts
+    have been removed.
+    (reference: mediapipe/calculators/tflite/ssd_anchors_calculator.cc)
+    """
+    layer_id = 0
+    num_layers = opts['num_layers']
+    strides = opts['strides']
+    assert len(strides) == num_layers
+    input_height = opts['input_size_height']
+    input_width = opts['input_size_width']
+    anchor_offset_x = opts['anchor_offset_x']
+    anchor_offset_y = opts['anchor_offset_y']
+    interpolated_scale_aspect_ratio = opts['interpolated_scale_aspect_ratio']
+    anchors = []
+    while layer_id < num_layers:
+        last_same_stride_layer = layer_id
+        repeats = 0
+        while (last_same_stride_layer < num_layers and
+               strides[last_same_stride_layer] == strides[layer_id]):
+            last_same_stride_layer += 1
+            repeats += 2 if interpolated_scale_aspect_ratio == 1.0 else 1
+        stride = strides[layer_id]
+        feature_map_height = input_height // stride
+        feature_map_width = input_width // stride
+        for y in range(feature_map_height):
+            y_center = (y + anchor_offset_y) / feature_map_height
+            for x in range(feature_map_width):
+                x_center = (x + anchor_offset_x) / feature_map_width
+                for _ in range(repeats):
+                    anchors.append((x_center, y_center))
+        layer_id = last_same_stride_layer
+    return np.array(anchors, dtype=np.float32)
+
+def remove_kpts(arr):
+    if arr.shape[1] > 1:
+        return arr[:, :4]
+    return arr
+
+def sort_and_combine(arrays):
+    squeezed_arrays = [np.squeeze(arr, axis=0) for arr in arrays]
+    sorted_arrays = sorted(squeezed_arrays, key=lambda arr: (arr.shape[0], arr.shape[1]), reverse=True)
+    processed_arrays = [remove_kpts(arr) for arr in sorted_arrays]
+    out_1 = np.concatenate((processed_arrays[0], processed_arrays[1]), axis=1)
+    out_2 = np.concatenate((processed_arrays[2], processed_arrays[3]), axis=1)
+    final_array = np.concatenate((out_1, out_2), axis=0)
+    return  final_array
+
+def _decode_boxes(raw_boxes,input_shape,anchors):
+    # width == height so scale is the same across the board
+    scale = input_shape
+    num_points = raw_boxes.shape[-1] // 2
+    # scale all values (applies to positions, width, and height alike)
+    boxes = raw_boxes.reshape(-1, num_points, 2) / scale
+    # adjust center coordinates and key points to anchor positions
+    boxes[:, 0] += anchors
+    for i in range(2, num_points):
+        boxes[:, i] += anchors
+    # convert x_center, y_center, w, h to xmin, ymin, xmax, ymax
+    center = np.array(boxes[:, 0])
+    half_size = boxes[:, 1] / 2
+    boxes[:, 0] = center - half_size
+    boxes[:, 1] = center + half_size
+    return boxes
+
+def sigmoid(data):
+    return 1 / (1 + np.exp(-data))
+
+def _get_sigmoid_scores(raw_scores):
+    """Extracted loop from ProcessCPU (line 327) in
+    mediapipe/calculators/tflite/tflite_tensors_to_detections_calculator.cc
+    """
+    # score limit is 100 in mediapipe and leads to overflows with IEEE 754 floats
+    # # this lower limit is safe for use with the sigmoid functions and float32
+    RAW_SCORE_LIMIT = 80
+    # just a single class ("face"), which simplifies this a lot
+    # 1) thresholding; adjusted from 100 to 80, since sigmoid of [-]100
+    #    causes overflow with IEEE single precision floats (max ~10e38)
+    raw_scores[raw_scores < -RAW_SCORE_LIMIT] = -RAW_SCORE_LIMIT
+    raw_scores[raw_scores > RAW_SCORE_LIMIT] = RAW_SCORE_LIMIT
+    # 2) apply sigmoid function on clipped confidence scores
+    return sigmoid(raw_scores)
+
+def decode_face_detect_front_predictions(predictions,image_size):
+    SSD_OPTIONS_FRONT = {
+    'num_layers': 4,
+    'input_size_height': 128,
+    'input_size_width': 128,
+    'anchor_offset_x': 0.5,
+    'anchor_offset_y': 0.5,
+    'strides': [8, 16, 16, 16],
+    'interpolated_scale_aspect_ratio': 1.0}
+    anchors=_ssd_generate_anchors(SSD_OPTIONS_FRONT)
+    out = sort_and_combine(predictions)
+    decoded_boxes = _decode_boxes(out[:,0:4],image_size[0],anchors) #xmin, ymin, xmax, ymax
+    reshaped_d_boxes = decoded_boxes.reshape(-1, 4)
+    decoded_scores = _get_sigmoid_scores(out[:,-1])
+    reshaped_d_scores = np.expand_dims(decoded_scores, axis=1)
+    boxes = np.expand_dims(reshaped_d_boxes, axis=0)
+    scores = np.expand_dims(reshaped_d_scores, axis=0)
+    return boxes, scores
+
+
+
 
 def decode_yolo_v4_predictions(predictions):
     # Lists to hold respective values while unwrapping.
@@ -296,6 +400,9 @@ def get_nmsed_detections(cfg, predictions, image_size):
         boxes, scores = decode_yolo_v8_predictions(predictions)
     elif model_family(cfg.general.model_type) == "yolo_v4":
         boxes, scores = decode_yolo_v4_predictions(predictions)
+    elif model_family(cfg.general.model_type) == "face_detect_front":
+        boxes, scores = decode_face_detect_front_predictions(predictions,image_size)
+
     else:
         raise ValueError("Unsupported model type")
         

@@ -12,12 +12,14 @@ import ssl
 ssl._create_default_https_context = ssl._create_unverified_context
 
 import os
+import sys
 
 from hydra.core.hydra_config import HydraConfig
 from omegaconf import DictConfig
 from src.postprocessing.tflite_ssd_postprocessing_removal.ssd_model_cut_function import ssd_post_processing_removal
 import numpy as np
 import tensorflow as tf
+from src.postprocessing  import _ssd_generate_anchors
 
 from common.utils import aspect_ratio_dict, color_mode_n6_dict
 
@@ -305,6 +307,58 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
             classes = classes + '   "' + str(x) + '"' + '}\\'
         else:
             classes = classes + '   "' + str(x) + '"' + ' ,' + ('\\\n' if (i % 5 == 0 and i != 0) else '')
+    
+    if params.general.model_type == "face_detect_front":
+        outs_info = interpreter_quant.get_output_details()
+        #print(outs_info)
+        output_shapes =[]
+        for buffer in outs_info:
+            output_shapes.append(buffer["shape"])
+        sorted_shapes = sorted(output_shapes, key=lambda arr: (arr[1], arr[2]), reverse=True)
+        SSD_OPTIONS_FRONT = {
+        'num_layers': 4,
+        'input_size_height': 128,
+        'input_size_width': 128,
+        'anchor_offset_x': 0.5,
+        'anchor_offset_y': 0.5,
+        'strides': [8, 16, 16, 16],
+        'interpolated_scale_aspect_ratio': 1.0}
+        anchors=_ssd_generate_anchors(SSD_OPTIONS_FRONT)
+        anch_0_rows = int(sorted_shapes[0][1])
+        anch_1_rows = int(sorted_shapes[2][1])
+        anch_0 = anchors[:anch_0_rows, :]
+        anch_1 = anchors[anch_0_rows:, :]
+        anch_0_flat = anch_0.reshape(int(anch_0.shape[0] * anch_0.shape[1]))
+        anch_1_flat = anch_1.reshape(int(anch_1.shape[0] * anch_1.shape[1]))
+        # Format the array elements as strings with 'f' suffix for floats in C
+        formatted_anch_0_flat = ", ".join(f"{x:.6f}" for x in anch_0_flat)
+        c_anch_0_str = f"const float32_t g_Anchors_0[{int(anch_0.shape[0] * anch_0.shape[1])}] = {{ {formatted_anch_0_flat} }};"
+        formatted_anch_1_flat = ", ".join(f"{x:.6f}" for x in anch_1_flat)
+        c_anch_1_str = f"const float32_t g_Anchors_1[{int(anch_1.shape[0] * anch_1.shape[1])}] = {{ {formatted_anch_1_flat} }};"
+        
+        with open(os.path.join(path, "fd_blazeface_anchors_0.h"), "wt") as f:
+            f.write("#ifndef __ANCHORS_0_H__\n")
+            f.write("#define __ANCHORS_0_H__\n\n")
+            f.write(c_anch_0_str)
+            f.write("\n")
+            f.write("#endif /* __ANCHORS_0_H__ */\n")
+
+        with open(os.path.join(path, "fd_blazeface_anchors_1.h"), "wt") as f:
+            f.write("#ifndef __ANCHORS_1_H__\n")
+            f.write("#define __ANCHORS_1_H__\n\n")
+            f.write(c_anch_1_str)
+            f.write("\n")
+            f.write("#endif /* __ANCHORS_1_H__ */\n")
+
+        # Copy the anchors to the C project
+        anchors_0_path_C = os.path.join(params.deployment.c_project_path, 'Application', params.deployment.hardware_setup.board, 'Inc', 'fd_blazeface_anchors_0.h')
+        anchors_1_path_C = os.path.join(params.deployment.c_project_path, 'Application', params.deployment.hardware_setup.board, 'Inc', 'fd_blazeface_anchors_1.h')
+        if os.path.exists(anchors_0_path_C):
+            os.remove(anchors_0_path_C)
+        if os.path.exists(anchors_1_path_C):
+            os.remove(anchors_1_path_C)
+        os.system(f'cp {os.path.join(path, "fd_blazeface_anchors_0.h")} {anchors_0_path_C}')
+        os.system(f'cp {os.path.join(path, "fd_blazeface_anchors_1.h")} {anchors_1_path_C}')
 
     with open(os.path.join(path, "app_config.h"), "wt") as f:
         f.write("/**\n")
@@ -347,17 +401,15 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         elif params.general.model_type == "CENTER_NET":
             raise TypeError("Not supported yet on N6")
         elif (params.general.model_type == "tiny_yolo_v2" or params.general.model_type == "st_yolo_lc_v1"):
-            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_YOLO_V2_UF\n\n")
+            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_YOLO_V2_UI\n\n")
         elif params.general.model_type in ("yolo_v8", "yolo_v11", "yolo_v5u"):
-            if output_details["dtype"]  == np.float32:
-                f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_YOLO_V8_UF\n")
-            elif output_details["dtype"]  in (np.int8,np.uint8):
-                f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_YOLO_V8_UI\n")
-
+            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_YOLO_V8_UI\n")
         elif params.general.model_type == "st_yolo_x":
-            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_ST_YOLOX_UF\n")
+            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_ST_YOLOX_UI\n")
+        elif params.general.model_type == "face_detect_front":
+            f.write("#define POSTPROCESS_TYPE    POSTPROCESS_OD_FD_BLAZEFACE_UI\n")
         else:
-            raise TypeError("please select one of this supported post processing options [CENTER_NET, st_yolo_x, st_yolo_lc_v1, tiny_yolo_v2, st_ssd_mobilenet_v1, ssd_mobilenet_v2_fpnlite ]")
+            raise TypeError("Please select one of the supported model_type")
         f.write("\n")
 
         f.write("#define NN_HEIGHT     ({})\n".format(int(input_shape[1])))
@@ -438,21 +490,36 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
             f.write("#define AI_OD_ST_YOLOX_PP_MAX_BOXES_LIMIT    ({})\n".format(int(params.postprocessing.max_detection_boxes)))
 
         elif (params.general.model_type in ("yolo_v8", "yolo_v11", "yolo_v5u")):
-            if output_details["dtype"]  == np.float32:
-                f.write("\n/* Postprocessing YOLO_V8/V5u output float configuration */\n")
-            else:
-                f.write("\n/* Postprocessing YOLO_V8/V5u output integer configuration */\n")
+            f.write("\n/* Postprocessing YOLO_V8 configuration */\n")
 
             out_shape = output_details["shape"]
-            scale, offset = output_details['quantization']
 
             f.write("#define AI_OD_YOLOV8_PP_NB_CLASSES        ({})\n".format(int(out_shape[1]-4)))
             f.write("#define AI_OD_YOLOV8_PP_TOTAL_BOXES       ({})\n".format(int(out_shape[2])))
             f.write("#define AI_OD_YOLOV8_PP_MAX_BOXES_LIMIT   ({})\n".format(int(params.postprocessing.max_detection_boxes)))
             f.write("#define AI_OD_YOLOV8_PP_CONF_THRESHOLD    ({})\n".format(float(params.postprocessing.confidence_thresh)))
             f.write("#define AI_OD_YOLOV8_PP_IOU_THRESHOLD     ({})\n".format(float(params.postprocessing.NMS_thresh)))
-            f.write("#define AI_OD_YOLOV8_PP_SCALE             ({})\n".format(float(scale)))
-            f.write("#define AI_OD_YOLOV8_PP_ZERO_POINT        ({})\n".format(int(offset)))
+
+        elif (params.general.model_type in ("face_detect_front")):
+            f.write("\n/* Postprocessing FD_BLAZEFACE configuration */\n")
+
+            outs_info = interpreter_quant.get_output_details()
+            #print(outs_info)
+            output_shapes =[]
+            for buffer in outs_info:
+                output_shapes.append(buffer["shape"])
+            sorted_shapes = sorted(output_shapes, key=lambda arr: (arr[1], arr[2]), reverse=True)
+
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_NB_KEYPOINTS      ({})\n".format(int((sorted_shapes[0][2]-4)/2)))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_NB_CLASSES        ({})\n".format(int(sorted_shapes[-1][-1])))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_IMG_SIZE          ({})\n".format(int(input_shape[1])))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_OUT_0_NB_BOXES    ({})\n".format(int(sorted_shapes[0][1])))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_OUT_1_NB_BOXES    ({})\n".format(int(sorted_shapes[-1][1])))
+
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_MAX_BOXES_LIMIT   ({})\n".format(int(params.postprocessing.max_detection_boxes)))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_CONF_THRESHOLD    ({})\n".format(float(params.postprocessing.confidence_thresh)))
+            f.write("#define AI_OD_FD_BLAZEFACE_PP_IOU_THRESHOLD     ({})\n".format(float(params.postprocessing.NMS_thresh)))
+
 
 
         f.write('#define WELCOME_MSG_1         "{}"\n'.format(os.path.basename(params.general.model_path)))

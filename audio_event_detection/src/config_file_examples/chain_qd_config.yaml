@@ -16,10 +16,6 @@ dataset:
   name: esc10
   class_names: ['dog', 'chainsaw', 'crackling_fire', 'helicopter', 'rain', 'crying_baby', 'clock_tick', 'sneezing', 'rooster', 'sea_waves']
   file_extension: '.wav'
-  
-  # Note : It is not strictly necessary to provide a quantization dataset, but not doing so 
-  # can greatly reduce quantized model performance
-
   quantization_audio_path: ./datasets/ESC-50/audio 
   quantization_csv_path: ./datasets/ESC-50/meta/esc50.csv
   quantization_split:  # Optional
@@ -63,11 +59,11 @@ feature_extraction:
 
 tools:
   stedgeai:
-    version: 10.0.0
+    version: 10.2.0
     optimization: balanced
     on_cloud: True
-    path_to_stedgeai: C:/Users/<XXXXX>/STM32Cube/Repository/Packs/STMicroelectronics/X-CUBE-AI/<*.*.*>/Utilities/windows/stedgeai.exe
-  path_to_cubeIDE: C:/ST/STM32CubeIDE_1.17.0/STM32CubeIDE/stm32cubeide.exe
+    path_to_stedgeai: C:/ST/STEdgeAI/<x.y>/Utilities/windows/stedgeai.exe
+  path_to_cubeIDE: C:/ST/STM32CubeIDE_<*.*.*>/STM32CubeIDE/stm32cubeide.exe
 
 quantization:
   quantizer: TFlite_converter
@@ -85,6 +81,7 @@ deployment:
     board: B-U585I-IOT02A
   unknown_class_threshold: 0.0 # Threshold used for OOD detection. Mutually exclusive with use_garbage_class
                                # Set to 0 to disable. To enable, set to any float between 0 and 1.
+  build_conf: Debug
 
 mlflow:
   uri: ./src/experiments_outputs/mlruns

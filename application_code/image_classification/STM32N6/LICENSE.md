@@ -12,14 +12,12 @@
 | Fonts                                                  | STMicroelectronics                    | BSD-3-Clause
 | lcd                                                    | STMicroelectronics                    | BSD-3-Clause
 | Middlewares/AI_Runtime                                 | STMicroelectronics                    | SLA0044
-| Middlewares/ai-postprocessing-wrapper                  | STMicroelectronics                    | SLA0044
 | Middlewares/Camera_Middleware                          | STMicroelectronics                    | SLA0044
 | Middlewares/Camera_Middleware/ISP_Library              | LACROIX - Impulse, STMicroelectronics | SLA0044
 | Middlewares/Camera_Middleware/sensors                  | STMicroelectronics                    | BSD-3-Clause
-| Middlewares/lib_vision_models_pp/lib_vision_models_pp  | STMicroelectronics                    | SLA0044
 | Middlewares/screenl                                    | STMicroelectronics                    | SLA0044
 | Middlewares/screenl/uvcl                               | STMicroelectronics                    | SLA0044
-| Binary                                                 | STMicroelectronics, Ultralytics       | SLA0044
+| Binary                                                 | STMicroelectronics                    | SLA0044
 | Inc                                                    | STMicroelectronics                    | SLA0044
 | Src                                                    | STMicroelectronics                    | SLA0044
 | Model                                                  | STMicroelectronics                    | SLA0044

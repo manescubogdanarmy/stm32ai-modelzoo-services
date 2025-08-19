@@ -667,7 +667,7 @@ def parse_deployment_section(cfg: DictConfig,
         legal (List): usable attributes
         legal_hw (List): usable attributes for the HW setup part
     '''
-    required = [x for x in legal if x != 'build_conf']
+    required = [x for x in legal]
     check_config_attributes(cfg, specs={"legal": legal, "all": required}, section="deployment")
     required = [x for x in legal_hw if x != 'stlink_serial_number']
     check_config_attributes(cfg.hardware_setup, specs={"legal": legal_hw, "all": required},

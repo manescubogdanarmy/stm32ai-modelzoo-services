@@ -17,15 +17,17 @@ from .endpoints import get_benchmark_boards_ep, get_benchmark_openapi_ep
 from .endpoints import get_benchmark_service_ep
 import time
 import logging
+from tqdm import tqdm
 
 logger = logging.getLogger(LOGGER_NAME)
 
 
 class BenchmarkService:
-    def __init__(self, auth_token) -> None:
+    def __init__(self, auth_token, silent = False) -> None:
         self.auth_token = auth_token
         self.main_route = get_benchmark_service_ep()
         self.benchmark_state = None
+        self.silent = silent
         self.file_service = FileService(self.auth_token)
 
         self._use_stringify_args = False
@@ -145,61 +147,83 @@ class BenchmarkService:
         else:
             return None
 
-    def wait_for_run(self, benchmarkId: str, timeout=300, pooling_delay=2):
+    def wait_for_run(self, benchmark_id: str, timeout=900, pooling_delay=2):
         """
             Wait for a benchmark run to be completed.
             If no result until timeoutit returns None
         """
+        current_state = None
+        current_progress = 0
         start_time = time.time()
         is_over = False
         self.benchmark_state = None
-        while not is_over:
-            if (time.time() - start_time) > timeout:
-                is_over = True
 
-            result = self._get_run(benchmarkId)
-            if result:
-                if isinstance(result, dict):
-                    self.benchmark_state = result.get('state', '').lower()
-                    if result.get('state', '').lower() == 'done':
-                        return result
-                    elif result.get('state', '').lower() == 'error':
-                        logger.error(f'Benchmark return an error: {result}')
-                        raise BenchmarkFailure(result.get('board', 'ND'),
-                                               result.get('message', 'no info')
-                                               )
-                    elif result.get('state', '').lower() == 'waiting_for_build':
-                        logger.debug(f'Benchmark({benchmarkId}) status: Project \
-                            is waiting for build')
-                    elif result.get('state', '').lower() == 'in_queue':
-                        logger.debug(f'Benchmark({benchmarkId}) status: Model \
-                            is in queue')
-                    elif result.get('state', '').lower() == 'flashing':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Flashing remote board')
-                    elif result.get('state', '').lower() == \
-                            'generating_sources':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Generating sources')
-                    elif result.get('state', '').lower() == \
-                        'copying_sources':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Copying sources')
-                    elif result.get('state', '').lower() == 'loading_sources':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Loading sources')
-                    elif result.get('state', '').lower() == 'building':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Building sources')
-                    elif result.get('state', '').lower() == 'validation':
-                        logger.debug(f'Benchmark({benchmarkId}) status: \
-                            Validating model')
+        def calculate_percentage(step, total_step, progress):
+            if total_step == 0:
+                return 0  # Avoid division by zero
+            return ((step - 1) / total_step) * 100 + (progress / total_step)
+             
+        with tqdm(total=100, desc="Waiting for benchmark", unit='%', leave=False, disable=self.silent) as pbar:
+            while not is_over:
+                if (time.time() - start_time) > timeout:
+                    is_over = True
+
+                result = self._get_run(benchmark_id)
+                if result:
+                    if isinstance(result, dict):
+                        new_state = result.get('state', '').lower()
+                        self.benchmark_state = new_state
+                        if new_state != current_state:
+                            current_state = new_state
+                            start_time = time.time()
+                        new_progress = calculate_percentage(
+                            result.get('step', 0),
+                            result.get('totalStep', 1),
+                            result.get('progress', 0)
+                        )
+                        increment = new_progress - current_progress
+                        current_progress = new_progress
+                        pbar.update(increment)
+                        pbar.set_description(f'Benchmarking: {new_state}')
+                        if new_state == 'done':
+                            return result
+                        elif new_state == 'error':
+                            logger.error(f'Benchmark return an error: {result}')
+                            raise BenchmarkFailure(result.get('board', 'ND'),
+                                                result.get('message', 'no info')
+                                                )
+                        elif new_state == 'waiting_for_build':
+                            logger.debug(f'Benchmark({benchmark_id}) status: Project \
+                                is waiting for build')
+                        elif new_state == 'in_queue':
+                            logger.debug(f'Benchmark({benchmark_id}) status: Model \
+                                is in queue')
+                        elif new_state == 'flashing':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Flashing remote board')
+                        elif new_state == \
+                                'generating_sources':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Generating sources')
+                        elif new_state == \
+                            'copying_sources':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Copying sources')
+                        elif new_state == 'loading_sources':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Loading sources')
+                        elif new_state == 'building':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Building sources')
+                        elif new_state == 'validation':
+                            logger.debug(f'Benchmark({benchmark_id}) status: \
+                                Validating model')
+                        else:
+                            logger.warn(f"Unknown {result.get('state', '')} key \
+                                received from server")
                     else:
-                        logger.warn(f"Unknown {result.get('state', '')} key \
-                            received from server")
-                else:
-                    logger.error("Error: Message received from server is not \
-                        an object: ", result)
-                    return None
+                        logger.error("Error: Message received from server is not \
+                            an object: ", result)
+                        return None
 
-            time.sleep(pooling_delay)
+                time.sleep(pooling_delay)

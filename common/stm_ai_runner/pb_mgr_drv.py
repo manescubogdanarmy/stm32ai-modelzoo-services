@@ -327,7 +327,10 @@ class DeviceDecoder():
 
     def _is_stellar_family(self):
         """."""
-        return self.get_dev_id() == 0x2511 or self.get_dev_id() == 0x2643
+        return self.get_dev_id() == 0x2511 or self.get_dev_id() == 0x2643 or \
+            self.get_dev_id() == 0x2646 or self.get_dev_id() == 0x2647 or \
+            self.get_dev_id() == 0x2633 or self.get_dev_id() == 0x2636 or \
+            self.get_dev_id() == 0x2637 or self.get_dev_id() == 0x2A47
 
     def _is_stm32_n6(self):
         """."""
@@ -552,6 +555,8 @@ class AiPbMsg(AiRunnerDriver):
         self._models: Dict = {}  # cache the description of the models
         self._sync = None  # cache for the sync message
         self._sys_info = None  # cache for sys info message
+        self._packet_out_size = stm32msg.IO_OUT_PACKET_SIZE
+        self._packet_in_size = stm32msg.IO_IN_PACKET_SIZE
         super(AiPbMsg, self).__init__(parent)
         self._io_drv.set_parent(self)
         msg_ = f'creating {self} (v{__version__})'
@@ -619,10 +624,11 @@ class AiPbMsg(AiRunnerDriver):
         return True
 
     def _write_io_packet(self, payload, delay=0):
-        iob = bytearray(stm32msg.IO_OUT_PACKET_SIZE + 1)
-        iob[0] = len(payload)
+        iob = bytearray(self._packet_out_size + 2)
+        iob[0] = (len(payload) >> 8) & 0xFF
+        iob[1] = len(payload) & 0xFF
         for i, val in enumerate(payload):
-            iob[i + 1] = val
+            iob[i + 2] = val
         if not delay:
             _w = self._io_drv.write(iob)
         else:
@@ -643,8 +649,8 @@ class AiPbMsg(AiRunnerDriver):
 
         buff = _head + buff
 
-        packs = [buff[i:i + stm32msg.IO_OUT_PACKET_SIZE]
-                 for i in range(0, len(buff), stm32msg.IO_OUT_PACKET_SIZE)]
+        packs = [buff[i:i + self._packet_out_size]
+                 for i in range(0, len(buff), self._packet_out_size)]
 
         n_w = self._write_io_packet(packs[0])
         for pack in packs[1:]:
@@ -672,7 +678,7 @@ class AiPbMsg(AiRunnerDriver):
         """Helper function to receive a message"""  # noqa: DAR101,DAR201,DAR401
         buf = bytearray()
 
-        packet_s = int(stm32msg.IO_IN_PACKET_SIZE + 1)
+        packet_s = int(self._packet_in_size + 2)
         if timeout == 0:
             t.sleep(0.2)
 
@@ -692,11 +698,14 @@ class AiPbMsg(AiRunnerDriver):
                         return self._parse_and_check(buf, msg_type)
             last = p_buf[0] & stm32msg.IO_HEADER_EOM_FLAG
             # cbuf[0] = cbuf[0] & 0x7F & ~stm32msg.IO_HEADER_SIZE_MSK
-            p_buf[0] &= 0x7F  # & ~stm32msg.IO_HEADER_SIZE_MSK)
+            # p_buf[0] &= 0x7F  # & ~stm32msg.IO_HEADER_SIZE_MSK)
+            size = (p_buf[0] & 0x7F) << 8 | p_buf[1] & 0xFF
             if last:
-                buf += p_buf[1:1 + p_buf[0]]
+                # buf += p_buf[1:1 + p_buf[0]]
+                buf += p_buf[2:2 + size]
                 break
-            buf += p_buf[1:packet_s]
+            # buf += p_buf[1:packet_s]
+            buf += p_buf[2:packet_s]
         resp = self._parse_and_check(buf, msg_type)
         return resp
 
@@ -768,6 +777,8 @@ class AiPbMsg(AiRunnerDriver):
 
     def _cmd_sync(self, timeout):
         """SYNC command"""  # noqa: DAR101,DAR201,DAR401
+        self._packet_in_size = stm32msg.IO_IN_PACKET_SIZE
+        self._packet_out_size = stm32msg.IO_OUT_PACKET_SIZE
         self._send_request(stm32msg.CMD_SYNC)
         resp = self._waiting_answer(timeout=timeout, msg_type='sync',
                                     state=stm32msg.S_IDLE)
@@ -778,6 +789,9 @@ class AiPbMsg(AiRunnerDriver):
         self._send_request(stm32msg.CMD_SYS_INFO)
         resp = self._waiting_answer(timeout=timeout, msg_type='sinfo',
                                     state=stm32msg.S_IDLE)
+        if resp.sinfo.com_param != 0:
+            self._packet_in_size = resp.sinfo.com_param
+            self._packet_out_size = resp.sinfo.com_param
         return resp.sinfo
 
     def _cmd_model_info(self, timeout, param=0):

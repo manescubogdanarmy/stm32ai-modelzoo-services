@@ -100,9 +100,9 @@ def gen_h_user_file_n6(config: DictConfig = None, quantized_model_path: str = No
         f.write("/* Postprocessing type configuration */\n")
 
         if params.general.model_type == "deeplab_v3":
-            f.write("#define POSTPROCESS_TYPE POSTPROCESS_SSEG_DEEPLAB_V3_UF\n\n")
+            f.write("#define POSTPROCESS_TYPE POSTPROCESS_SSEG_DEEPLAB_V3_UI\n\n")
         else:
-            raise TypeError("please select one of this supported post processing options [ deeplab_v3 ]")
+            raise TypeError("please select one of this supported post processing options [deeplab_v3]")
 
 
         f.write("#define NN_HEIGHT     ({})\n".format(int(input_shape[1])))

@@ -14,25 +14,26 @@ USE_TEST_ROUTES_EV = 'USE_TEST_ROUTES'
 
 
 class BackendEndpoints:
-    BASE_URL = 'https://stm32ai-cs.st.com/'
-    USER_SERVICE_URL = 'https://stm32ai-cs.st.com/api/user_service'
-    FILE_SERVICE_URL = 'https://stm32ai-cs.st.com/api/file'
-    GENERATE_NBG_SERVICE_URL = 'https://stm32ai-cs.st.com/api/generate_nbg'
-    BENCHMARK_SERVICE_URL = 'https://stm32ai-cs.st.com/api/benchmark'
-    VERSIONS_URL = 'https://stm32ai-cs.st.com/assets/versions.json'
+    BASE_URL = os.environ.get('BASE_URL_DEVCLOUD', 'https://stedgeai-dc.st.com/')
+    USER_SERVICE_URL = f'{BASE_URL}api/user_service'
+    FILE_SERVICE_URL = f'{BASE_URL}api/file'
+    GENERATE_NBG_SERVICE_URL = f'{BASE_URL}api/generate_nbg'
+    BENCHMARK_SERVICE_URL = f'{BASE_URL}api/benchmark'
+    VERSIONS_URL = f'{BASE_URL}assets/versions.json'
     SSO_URL = 'https://sso.st.com'
     CLIENTID = 'oidc_prod_client_app_stm32ai'
-    CALLBACK_URL = 'https://stm32ai-cs.st.com/callback'
+    CALLBACK_URL = f'{BASE_URL}callback'
+
 class BackendTestEndpoints:
-    BASE_URL = 'https://stm32ai-cs-qa.st.com/'
-    USER_SERVICE_URL = 'https://stm32ai-cs-qa.st.com/api/user_service'
-    FILE_SERVICE_URL = 'https://stm32ai-cs-qa.st.com/api/file'
-    GENERATE_NBG_SERVICE_URL = 'https://stm32ai-cs-qa.st.com/api/generate_nbg'
-    BENCHMARK_SERVICE_URL = 'https://stm32ai-cs-qa.st.com/api/benchmark'
-    VERSIONS_URL = 'https://stm32ai-cs-qa.st.com/assets/versions.json'
+    BASE_URL = os.environ.get('BASE_URL_DEVCLOUD_QA', 'https://stedgeai-dc-qa.st.com/')
+    USER_SERVICE_URL = f'{BASE_URL}api/user_service'
+    FILE_SERVICE_URL = f'{BASE_URL}api/file'
+    GENERATE_NBG_SERVICE_URL = f'{BASE_URL}api/generate_nbg'
+    BENCHMARK_SERVICE_URL = f'{BASE_URL}api/benchmark'
+    VERSIONS_URL = f'{BASE_URL}assets/versions.json'
     SSO_URL = 'https://qa-sso.st.com'
     CLIENTID = 'oidc_pre_prod_client_app'
-    CALLBACK_URL = 'https://stm32ai-cs-qa.st.com/callback'
+    CALLBACK_URL = f'{BASE_URL}callback'
 
 
 class BackendEvName:

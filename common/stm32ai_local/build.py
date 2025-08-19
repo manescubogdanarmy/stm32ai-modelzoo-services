@@ -201,9 +201,9 @@ def _update_source_tree(session: STMAiSession, user_files: Union[str, List[str],
         if count == cur_count:
             not_updated.append(key)
 
-    if count != len(conf.templates):
-        logger.warning(f'all the files are not be updated, {count}/{len(conf.templates)}!')
-        logger.warning(f' -> {not_updated}')
+    # if count != len(conf.templates): # COMMENTED FOR NOW, TO BE CORRECTED
+    #     logger.warning(f'all the files are not be updated, {count}/{len(conf.templates)}!')
+    #     logger.warning(f' -> {not_updated}')
 
     return stm_ai_lib
 

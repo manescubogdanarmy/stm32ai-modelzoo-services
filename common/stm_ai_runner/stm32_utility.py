@@ -115,8 +115,14 @@ def stm32_id_to_str(dev_id):
         0x486: 'STM32N6xx',
         0x155: 'Corstone SSE-300 FVP',
 
-        0x2511: 'SR5E1x',
+        0x2511: 'SR5E1',
         0x2643: 'SR6P3',
+        0x2646: 'SR6P6',
+        0x2647: 'SR6P7',
+        0x2633: 'SR6G3',
+        0x2636: 'SR6G6',
+        0x2637: 'SR6G7',
+        0x2A47: 'SR6P7G7',
     }
     desc_ = f'0x{dev_id:X} - '
     desc_ += switcher.get(dev_id, 'UNKNOW')

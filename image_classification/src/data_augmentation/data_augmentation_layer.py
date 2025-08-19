@@ -10,21 +10,13 @@
 import tensorflow as tf
 from tensorflow import keras
 from keras import backend
-try:
-    from keras.engine import base_layer
-    from keras.engine import base_preprocessing_layer
-    from keras.utils import control_flow_util
-    BaseLayer = base_layer.Layer
-except ImportError:
-    # For Keras 3.x compatibility
-    from keras.layers import Layer as BaseLayer
-    base_layer = type('base_layer', (), {'Layer': BaseLayer})
-    base_preprocessing_layer = base_layer
-    control_flow_util = None
+from keras.engine import base_layer
+from keras.engine import base_preprocessing_layer
+from keras.utils import control_flow_util
 from src.data_augmentation import data_augmentation
 
 
-class DataAugmentationLayer(BaseLayer):
+class DataAugmentationLayer(base_layer.Layer):
 
     def __init__(self,
                 data_augmentation_fn,
@@ -32,7 +24,7 @@ class DataAugmentationLayer(BaseLayer):
                 pixels_range=None,
                 batches_per_epoch=None,
                 **kwargs):
-        # Keras KPL gauge not available in Keras 3.x - removed for compatibility
+        base_preprocessing_layer.keras_kpl_gauge.get_cell('DataAugmentationLayer').set(True)
         super(DataAugmentationLayer, self).__init__(**kwargs)
         self.data_augmentation_fn = data_augmentation_fn
         self.config_dict = config
@@ -78,24 +70,7 @@ class DataAugmentationLayer(BaseLayer):
 
             return outputs
         
-        # Handle training parameter properly
-        training_bool = training
-        if isinstance(training, str):
-            training_bool = training.lower() == 'true'
-        
-        # Use Keras 3.x compatible conditional logic
-        if control_flow_util is not None:
-            # Keras 2.x path
-            return control_flow_util.smart_cond(training_bool, transform_input_data, lambda: inputs)
-        else:
-            # Keras 3.x path - use tf.cond directly
-            return tf.cond(training_bool, lambda: transform_input_data(), lambda: inputs)
-
-    def compute_output_shape(self, input_shape):
-        return input_shape
-        
-    def compute_output_spec(self, input_spec, **kwargs):
-        return input_spec
+        return control_flow_util.smart_cond(training, transform_input_data, lambda: inputs)
 
 
     def get_config(self):

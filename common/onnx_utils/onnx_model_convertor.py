@@ -10,21 +10,10 @@ import argparse
 from pathlib import Path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
-try:
-    import tf2onnx
-    TF2ONNX_AVAILABLE = True
-except ImportError:
-    TF2ONNX_AVAILABLE = False
-    tf2onnx = None
+import tf2onnx
 import tensorflow as tf
-try:
-    import onnx as onx
-    import onnxruntime as onx_rt
-    ONNX_AVAILABLE = True
-except ImportError:
-    ONNX_AVAILABLE = False
-    onx = None
-    onx_rt = None
+import onnx as onx
+import onnxruntime as onx_rt
 import numpy as np
 
 def _quantized_per_tensor(model_path):
@@ -84,12 +73,8 @@ def _tool_version_used():
     _tool_version_used()  # Call the function to print the versions of the libraries
     """
     print('The version of libraries are: ')
-    if ONNX_AVAILABLE:
-        print(f'onnx: {onx.__version__}')
-        print(f'onnxruntime: {onx_rt.__version__}')
-    else:
-        print('onnx: Not available')
-        print('onnxruntime: Not available')
+    print(f'onnx: {onx.__version__}')
+    print(f'onnxruntime: {onx_rt.__version__}')
     print(f'tensorflow: {tf.__version__}')
 
 
@@ -124,15 +109,10 @@ def onnx_model_converter(input_model_path: str, target_opset: int = 17, output_d
     onnx_converter('path/to/model.tflite')  # Converts a per-tensor quantized or float .tflite model to ONNX
     """
     # Function implementation follows...
-    if not TF2ONNX_AVAILABLE and not ONNX_AVAILABLE:
-        raise ImportError("tf2onnx and onnx libraries are not available. Please install them for ONNX conversion.")
-    
     model_type = Path(input_model_path).suffix
     if model_type == '.onnx':
         print('Model is already in onnx format')
     elif model_type == '.h5':
-        if not TF2ONNX_AVAILABLE:
-            raise ImportError("tf2onnx library is not available. Please install it for H5 to ONNX conversion.")
         h5_model = tf.keras.models.load_model(input_model_path, compile = False)
         # Get the input tensor name
         input_names = h5_model.input_names
@@ -158,15 +138,7 @@ def onnx_model_converter(input_model_path: str, target_opset: int = 17, output_d
                                     outputs_as_nchw=output_names,
                                     output_path=output_dir)
     elif model_type == '.tflite':
-        try:
-            import tflite2onnx
-            TFLITE2ONNX_AVAILABLE = True
-        except ImportError:
-            TFLITE2ONNX_AVAILABLE = False
-        
-        if not TFLITE2ONNX_AVAILABLE:
-            raise ImportError("tflite2onnx library is not available. Please install it for TFLite to ONNX conversion.")
-        
+        import tflite2onnx
         if _quantized_per_tensor(input_model_path):
             onnx_file_name = ".".join(os.path.basename(input_model_path).split(".")[:-1])
             tflite2onnx.convert(input_model_path, f"{onnx_file_name}.onnx")

@@ -9,22 +9,11 @@
 
 import os
 from tabulate import tabulate
-import numpy as np
-try:
-    from keras.utils.layer_utils import count_params
-except ImportError:
-    # For Keras 3.x compatibility
-    def count_params(weights):
-        """Count the total number of parameters."""
-        if hasattr(weights, 'count_params'):
-            return weights.count_params()
-        if isinstance(weights, list):
-            return sum(w.shape.num_elements() if hasattr(w, 'shape') else 
-                      int(np.prod(w.shape)) for w in weights)
-        return 0
+from keras.utils.layer_utils import count_params
 from typing import Dict, Optional, Tuple, List
 import tensorflow as tf
 from tensorflow.keras.models import Model
+import numpy as np
 import sklearn
 from pathlib import Path
 from onnx import ModelProto
@@ -297,15 +286,7 @@ def model_summary(model):
         if layer_type == "InputLayer":
             layer_shape = model.input.shape
         else:
-            # Handle Keras 3.x compatibility for output_shape
-            try:
-                layer_shape = layer.output_shape
-            except AttributeError:
-                # In Keras 3.x, we need to get the output spec or shape differently
-                try:
-                    layer_shape = layer.compute_output_shape(layer.input_shape)
-                except:
-                    layer_shape = "Unknown"
+            layer_shape = layer.output_shape
         is_trainable = True if layer.trainable else False
         num_params = layer.count_params()
         if layer.trainable:

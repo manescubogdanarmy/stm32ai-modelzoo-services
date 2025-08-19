@@ -1,69 +1,99 @@
 general:
-  project_name: sensor_classification_v2
+  project_name: tf_flowers
   model_path:
   logs_dir: logs
   saved_models_dir: saved_models
   display_figures: True
-  global_seed: 456  # Different seed for new training
-  gpu_memory_limit: 8
+  global_seed: 123
+  gpu_memory_limit: 24
 
-operation_mode: training
+operation_mode: chain_tqeb
+#choices=['training' , 'evaluation', 'prediction', 'deployment', 'quantization', 'benchmarking',
+#        'chain_tqeb','chain_tqe','chain_eqe','chain_qb','chain_eqeb','chain_qd ']
 
 dataset:
-  name: sensor_data
-  class_names: ['high_body_temperature', 'muscle_fatigue', 'emg_fatigue', 'poor_posture', 'high_env_temperature', 'high_stress', 'eye_fatigue', 'normal']
-  training_path: ./datasets/sensor_data  # Mandatory
+  name: flowers
+  class_names: [daisy, dandelion, roses, sunflowers, tulips]  # Or, classes_file_path, one of it is mandatory for deployment and prediction.
+  training_path: ./datasets/flower_photos  # Mandatory
   validation_path:        # Optional
-  validation_split: 0.25   # Larger validation set to better detect overfitting
+  validation_split: 0.2   # Optional, default value is 0.2
   test_path:              # Optional
   quantization_path:      # Optional
   quantization_split:     # Optional
-  check_image_files: True  # Optional, set it to True if you want to check that all the image files can be read successfully
-  seed: 456               # Match global seed
+  check_image_files: False  # Optional, set it to True if you want to check that all the image files can be read successfully
+  seed: 127               # Optional, there is a default seed
 
 preprocessing:
-  rescaling:
-    scale: 1/255.0
-    offset: 0
+  rescaling: { scale: 1/127.5, offset: -1 }
   resizing:
     interpolation: nearest
     aspect_ratio: fit
-  color_mode: grayscale
+  color_mode: rgb
 
-data_augmentation:    # Enable light augmentation to improve generalization
+data_augmentation:    # Optional section
+  random_contrast:
+    factor: 0.4
+  random_brightness:
+    factor: 0.05
   random_flip:
-    mode: horizontal  # Horizontal flip may help generalization
+    mode: horizontal
   random_translation:
-    width_factor: 0.05  # Very small translation to preserve sensor patterns
-    height_factor: 0.0  # No vertical translation for 2-pixel height
-    fill_mode: constant
+    width_factor: 0.25
+    height_factor: 0.25
+    fill_mode: reflect
     interpolation: nearest
+  random_rotation:
+    factor: 0.125
+    fill_mode: reflect
+    interpolation: nearest
+  random_zoom:
+    width_factor: 0.25
+    height_factor: 0.25
+    fill_mode: reflect
+    interpolation: nearest
+  random_shear:
+    factor: 0.0515
+    fill_mode: wrap
+    interpolation: nearest
+#  random_gaussian_noise:
+#    stddev: (0.0001, 0.005)
 
 training:
   model:    # Use it if you want to use a model from the zoo, mutually exclusive with 'general.model_path'
-    name: stmnist  # Using a simpler model for small sensor data
-    input_shape: (32, 32, 1)  # Resize 16x2 to 32x32 greyscale for better compatibility
+    name: mobilenet
+    version: v2
+    alpha: 0.35
+    input_shape: (128, 128, 3)
+    pretrained_weights: imagenet   # Optional, use it if you want to use the 'imagenet' pretrained weights, available only for MobileNet models
+    pretrained_model_path:         # Optional, available for transfer learning with all models, mutually exclusive with pretrained_weights
   resume_training_from: # Optional, use to resume a training from a previous experiment.
                         # Example: experiments_outputs/2023_10_26_18_36_09/saved_models/last_augmented_model.h5 
   frozen_layers: None  #(0:-1)            # Optional, use if you want to freeze some layers (by default all layers are trainable)
-  dropout: 0.3                     # Reduced dropout for better learning
-  batch_size: 16                   # Smaller batch size for more stable training
-  epochs: 50                       # Fewer epochs to prevent overfitting
+  dropout: 0.3                     # Optional, use it if you want a dropout layer to be included in the model
+  batch_size: 64
+  epochs: 1000
   optimizer:
     Adam:
-      learning_rate: 0.0001         # Lower learning rate for more stable training
-  callbacks:          # More aggressive early stopping
+      learning_rate: 0.001
+  callbacks:          # Optional section
     ReduceLROnPlateau:
-      monitor: val_loss             # Monitor validation loss instead of accuracy
-      mode: min
+      monitor: val_accuracy
+      mode: max
       factor: 0.5
-      patience: 5                   # Reduce patience
-      min_lr: 1.0e-06
+      patience: 40
+      min_lr: 1.0e-05
+    # LRWarmupCosineDecay:
+    #   initial_lr: 0.0001
+    #   warmup_steps: 100
+    #   max_lr: 0.005
+    #   hold_steps: 100
+    #   decay_steps: 800
+    #   end_lr: 5.0e-05
     EarlyStopping:
-      monitor: val_loss             # Monitor validation loss for better generalization
-      mode: min
+      monitor: val_accuracy
+      mode: max
       restore_best_weights: true
-      patience: 10                  # Reduced patience to prevent overfitting
+      patience: 60
 #  trained_model_path: trained.h5   # Optional, use it if you want to save the best model at the end of the training to a path of your choice
 
 quantization:
